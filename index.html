@@ -201,6 +201,15 @@ input:focus-visible, button:focus-visible, a:focus-visible { outline: 3px solid 
 .appt .outcome { grid-column: 2; font-size: 13px; color: var(--ink-soft); }
 .small-btn { border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 8px; padding: 4px 10px; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; }
 .empty { color: var(--ink-soft); font-size: 14px; }
+.due { grid-column: 2; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; margin-top: 6px; background: var(--warn-bg); color: var(--warn); border-radius: 10px; padding: 8px 10px; font-size: 13px; font-weight: 600; }
+.due b { font-size: 15px; font-variant-numeric: tabular-nums; }
+.due.done { background: var(--ok-bg); color: var(--ok); }
+.daily { background: var(--chat-bg); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 6px; }
+.daily .label { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-soft); }
+.daily .msg { max-width: 100%; }
+.mail { border: 1px solid var(--line); border-radius: 10px; background: var(--surface); font-size: 13px; overflow: hidden; }
+.mail .mail-head { background: var(--surface-2); padding: 8px 12px; display: flex; flex-direction: column; gap: 2px; }
+.mail .mail-body { padding: 10px 12px; display: flex; flex-direction: column; gap: 3px; font-variant-numeric: tabular-nums; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
 </style>
@@ -288,13 +297,14 @@ body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inse
   var STORE = "barberia-demo-v2";
 
   function load() { try { var s = JSON.parse(localStorage.getItem(STORE) || "null"); if (s && typeof s === "object") return s; } catch (e) {} return null; }
-  function save() { try { localStorage.setItem(STORE, JSON.stringify({ cfg: cfg, custom: custom, status: status, confirmed: confirmed })); } catch (e) {} }
+  function save() { try { localStorage.setItem(STORE, JSON.stringify({ cfg: cfg, custom: custom, status: status, confirmed: confirmed, collected: collected })); } catch (e) {} }
 
   var saved = load() || {};
   var cfg = Object.assign({ name: "Dalejo New Style Barber Shop", abono: 5000, horas: 24 }, saved.cfg || {});
   var custom = Array.isArray(saved.custom) ? saved.custom : [];
   var status = saved.status && typeof saved.status === "object" ? saved.status : {};
   var confirmed = saved.confirmed && typeof saved.confirmed === "object" ? saved.confirmed : {};
+  var collected = saved.collected && typeof saved.collected === "object" ? saved.collected : {};
   function cardFee(amount) { return Math.round((amount == null ? cfg.abono : amount) * 0.0319 * 1.19); }
   function isPending(b) { return b.pay === "transfer" && !b.seed && !confirmed[b.id]; }
   function amt(b) { var s = svc(b.service); return b.full && s && !s.from ? s.price : cfg.abono; }
@@ -303,10 +313,16 @@ body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inse
   var receipts = {};   // bookingId -> { name, dataUrl, sample } (in memory only)
   var checking = {};   // bookingId -> "searching" | "found"
   var opNumber = function (id) { var n = 0; for (var i = 0; i < id.length; i++) n = (n * 31 + id.charCodeAt(i)) >>> 0; return String(40000000 + (n % 9999999)); };
-  function receiptHtml(r, id, amount, code) {
-    if (!r) return '<p class="note">Sin comprobante adjunto.</p>';
+  function bankMail(id, amount, payer) {
+    var when = new Intl.DateTimeFormat("es-CL", { dateStyle: "medium", timeStyle: "short" }).format(new Date());
+    return '<div class="mail"><div class="mail-head"><strong>Comprobante de transferencia</strong><span class="note">De: notificaciones@[banco del cliente] · Para: ' + esc(BANK.email) + '</span></div>' +
+      '<div class="mail-body"><span>Origen: <b>' + esc(payer || "Cliente") + '</b></span><span>Monto: <b>' + clp(amount == null ? cfg.abono : amount) + '</b></span>' +
+      '<span>Destino: ' + esc(BANK.bank + ' · ' + BANK.holder) + '</span><span>Fecha: ' + esc(when) + '</span><span>N° de operación: ' + opNumber(id || "x") + '</span><span class="note">Correo simulado para el demo</span></div></div>';
+  }
+  function receiptHtml(r) {
+    if (!r) return "";
     if (r.dataUrl) return '<img class="receipt-img" src="' + r.dataUrl + '" alt="Comprobante adjuntado por el cliente">';
-    if (r.sample) return '<div class="sample-receipt"><strong>Transferencia exitosa</strong><span>Monto: ' + clp(amount == null ? cfg.abono : amount) + '</span>' + (code ? '<span>Comentario: ' + esc(code) + '</span>' : '') + '<span>Destino: ' + esc(BANK.bank + ' · ' + BANK.holder) + '</span><span>Fecha: ' + esc(new Intl.DateTimeFormat("es-CL", { dateStyle: "medium", timeStyle: "short" }).format(new Date())) + '</span><span>N° de operación: ' + opNumber(id || "x") + '</span><span class="note">Comprobante de ejemplo</span></div>';
+    if (r.sample) return '<p class="note">Comprobante de ejemplo adjuntado.</p>';
     return '<p class="note">Archivo adjunto: ' + esc(r.name) + '</p>';
   }
 
@@ -448,9 +464,8 @@ body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inse
       var b = bk.done, s = svc(b.service), paid = amt(b), rest = Math.max(0, s.price - paid);
       var restTxt = rest ? 'En el local pagas ' + clp(rest) + '.' : 'En el local no pagas nada.';
       h += '<div class="done"><div class="check" aria-hidden="true">✓</div><h3>¡Hora reservada!</h3><p>' + esc(s.name) + ', ' + esc(fmtLong.format(parseKey(b.date))) + ' a las ' + b.time + '.</p>' +
-        '<p class="note">Código de reserva: <strong>' + esc(b.code) + '</strong></p>' +
         (b.pay === "transfer"
-          ? '<p>Recibimos tu comprobante de <strong>' + clp(paid) + '</strong>. Lo validamos y te confirmamos por WhatsApp. ' + restTxt + '</p>'
+          ? '<p>Tu hora queda <strong>pendiente</strong> mientras validamos tu transferencia de <strong>' + clp(paid) + '</strong> con el comprobante que tu banco envía por correo. Te confirmamos por WhatsApp. ' + restTxt + '</p>'
           : '<p>' + (b.full ? 'Servicio pagado completo' : 'Abono pagado') + ': <strong>' + clp(paid) + '</strong>. ' + restTxt + '</p>') +
         '<p class="note">Te llegará un recordatorio por WhatsApp el día anterior.</p></div>' +
         '<div class="actions"><button type="button" class="btn secondary" id="bk-new">Otra reserva</button><button type="button" class="btn" data-go="agenda">Ver en la agenda del barbero</button></div>';
@@ -505,27 +520,51 @@ body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inse
       if (bk.method === "transfer") {
         h += '<div class="bankbox"><div><span>Titular</span><span>' + esc(BANK.holder) + '</span></div><div><span>RUT</span><span>' + esc(BANK.rut) + '</span></div>' +
           '<div><span>Banco</span><span>' + esc(BANK.bank) + '</span></div><div><span>Tipo de cuenta</span><span>' + esc(BANK.type) + '</span></div>' +
-          '<div><span>N° de cuenta</span><span>' + esc(BANK.account) + '</span></div><div><span>Email</span><span>' + esc(BANK.email) + '</span></div><div><span>Monto</span><span>' + clp(payNow) + '</span></div>' +
-          '<div><span>Comentario</span><span>' + esc(bk.code) + '</span></div></div>' +
-          '<p class="note">Escribe el código <strong>' + esc(bk.code) + '</strong> en el comentario de la transferencia: así identificamos tu pago.</p>' +
-          '<div class="upload"><div class="step-title" style="font-size:15px">Adjunta tu comprobante</div>' +
-          (bk.receipt ? receiptHtml(bk.receipt, "nuevo", payNow, bk.code) : "") +
-          '<input type="file" id="bk-receipt" accept="image/*,application/pdf"><label class="file" for="bk-receipt">' + (bk.receipt ? "Cambiar comprobante" : "Subir foto o PDF del comprobante") + '</label>' +
-          (bk.receipt ? "" : '<button type="button" class="linkish" id="bk-sample">Usar un comprobante de ejemplo</button>') + '</div>' +
+          '<div><span>N° de cuenta</span><span>' + esc(BANK.account) + '</span></div><div><span>Email</span><span>' + esc(BANK.email) + '</span></div><div><span>Monto</span><span>' + clp(payNow) + '</span></div></div>' +
+          '<p class="for-barber"><strong>Importante:</strong> al transferir, deja <strong>' + esc(BANK.email) + '</strong> como email del destinatario. Tu banco envía el comprobante a ese correo y con eso validamos tu pago. No tienes que escribir ningún código.</p>' +
+          '<div class="upload"><div class="step-title" style="font-size:15px">¿Pagas desde la cuenta de otra persona?</div>' +
+          '<p class="note">Adjunta el comprobante para que sepamos que es tuyo (opcional).</p>' +
+          (bk.receipt ? receiptHtml(bk.receipt) : "") +
+          '<input type="file" id="bk-receipt" accept="image/*,application/pdf"><label class="file" for="bk-receipt">' + (bk.receipt ? "Cambiar comprobante" : "Subir foto o PDF del comprobante") + '</label></div>' +
           '<p class="note">Tu hora queda reservada como pendiente mientras validamos que la transferencia llegó. Te confirmamos por WhatsApp.</p>';
       } else if (bk.method === "card") {
         h += '<p class="note">En la versión real, este botón abre el pago de Mercado Pago. En el demo, el pago es simulado.</p>';
       }
       h += '<p class="policy">Puedes cambiar tu hora con al menos ' + cfg.horas + ' horas de aviso y lo que pagaste pasa a la nueva hora. Si cancelas después o no llegas, pierdes el abono de ' + clp(cfg.abono) + (bk.full ? ' y el resto queda como saldo a favor para tu próxima hora' : '') + '.</p>' +
         '<p class="for-barber"><strong>Para el barbero:</strong> con transferencia recibe ' + clp(payNow) + ' completos. Con tarjeta recibe unos ' + clp(payNow - cardFee(payNow)) + ' (comisión de 3,19% + IVA).</p>';
-      var payLabel = bk.paying ? (bk.method === "transfer" ? "Guardando…" : "Procesando pago…") : (bk.method === "transfer" ? (bk.receipt ? "Enviar comprobante" : "Adjunta el comprobante") : bk.method === "card" ? "Pagar " + clp(payNow) : "Elige cómo pagar");
-      h += '<div class="actions"><button type="button" class="btn secondary" id="bk-back" ' + (bk.paying ? "disabled" : "") + '>Atrás</button><button type="button" class="btn" id="bk-pay" ' + (bk.paying || !bk.method || (bk.method === "transfer" && !bk.receipt) ? "disabled" : "") + '>' + payLabel + '</button></div>';
+      var payLabel = bk.paying ? (bk.method === "transfer" ? "Guardando…" : "Procesando pago…") : (bk.method === "transfer" ? "Ya transferí" : bk.method === "card" ? "Pagar " + clp(payNow) : "Elige cómo pagar");
+      h += '<div class="actions"><button type="button" class="btn secondary" id="bk-back" ' + (bk.paying ? "disabled" : "") + '>Atrás</button><button type="button" class="btn" id="bk-pay" ' + (bk.paying || !bk.method ? "disabled" : "") + '>' + payLabel + '</button></div>';
     }
     v.innerHTML = h + '</div>';
   }
 
   // ---------- Agenda ----------
   var outcomes = {};
+  function dueAtShop(b) {
+    var st = status[b.id]; if (st === "liberada" || st === "rechazada" || st === "perdida") return null;
+    var s = svc(b.service); return { amount: Math.max(0, s.price - amt(b)), from: !!s.from };
+  }
+  function dueHtml(b) {
+    var d = dueAtShop(b); if (!d) return "";
+    if (!d.amount && !d.from) return '<div class="due done"><span>Pagó todo · nada que cobrar</span></div>';
+    var txt = (d.from ? "desde " : "") + clp(d.amount);
+    if (collected[b.id]) return '<div class="due done"><span>Cobrado en el local: <b>' + txt + '</b> ✓</span></div>';
+    return '<div class="due"><span>' + (isPending(b) ? "Si se valida el pago, cobrar" : "Cobrar en el local") + ': <b>' + txt + '</b></span><button type="button" class="small-btn" data-collect="' + b.id + '">Marcar cobrado</button></div>';
+  }
+  function dailySummary(list) {
+    var active = list.filter(function (b) { return dueAtShop(b); });
+    if (!active.length) return "";
+    var dk = active[0].date, dayList = active.filter(function (b) { return b.date === dk; });
+    var isToday = dk === key(today), total = 0;
+    var lines = dayList.map(function (b) {
+      var d = dueAtShop(b); total += d.amount;
+      return b.time + " · " + esc(b.name) + " · " + (isPending(b) ? "pago en validación" : !d.amount && !d.from ? "pagó todo ✅" : collected[b.id] ? "cobrado ✅" : "cobrar " + (d.from ? "desde " : "") + clp(d.amount));
+    });
+    var first = esc(BANK.holder.split(" ")[0]);
+    return '<div class="daily"><div class="label">Aviso diario por WhatsApp · 8:00</div><div class="msg in"><span class="auto">Digital Arrow</span>' +
+      (isToday ? "☀️ Buenos días, " + first + ". Hoy tienes " : "📅 " + first + ", el " + esc(fmtLong.format(parseKey(dk))) + " tienes ") + dayList.length + (dayList.length === 1 ? " cliente" : " clientes") + ":<br>" + lines.join("<br>") +
+      "<br><b>Total por cobrar en el local: " + clp(total) + "</b><span class=\"meta\">8:00</span></div></div>";
+  }
   function renderAgenda(v) {
     var list = allBookings().slice().sort(function (a, b) { return (a.date + a.time).localeCompare(b.date + b.time); });
     var week = list.filter(function (b) { var d = parseKey(b.date); return d >= today && d < addDays(today, 7); });
@@ -537,6 +576,7 @@ body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inse
     var h = '<div class="agenda"><div class="hero"><div class="eyebrow">Vista del barbero</div><h2>Tu agenda de la semana</h2></div>' +
       '<div class="stats"><div class="stat"><b>' + week.length + '</b><small>reservas</small></div><div class="stat"><b>' + clp(received) + '</b><small>en pagos recibidos</small></div>' +
       '<div class="stat"><b>' + clp(saved) + '</b><small>ahorrado en comisiones por transferencias</small></div><div class="stat"><b>' + covered + '</b><small>cancelaciones cubiertas</small></div></div>' +
+      dailySummary(week) +
       (pendingCount ? '<p class="for-barber"><strong>' + pendingCount + (pendingCount === 1 ? ' comprobante en validación.' : ' comprobantes en validación.') + '</strong> Digital Arrow los revisa por ti y te avisa cuando quedan confirmados. No tienes que hacer nada.</p>' : '');
     var groups = {};
     week.forEach(function (b) { (groups[b.date] = groups[b.date] || []).push(b); });
@@ -554,6 +594,7 @@ body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inse
         h += '<div class="appt"><div class="time">' + b.time + '</div><div class="who"><b>' + esc(b.name) + '</b><small>' + esc(s.name) + ' · ' + priceTxt(s) + '</small></div>' +
           '<div class="foot">' + (b.seed ? "" : '<span class="pill new">Nueva</span>') + pill +
           (st ? "" : '<button type="button" class="small-btn" data-cancel="' + b.id + '">Simular cancelación</button>') + '</div>' +
+          dueHtml(b) +
           (outcomes[b.id] ? '<div class="outcome">' + outcomes[b.id] + '</div>' : "") + '</div>';
       });
       h += '</div>';
@@ -581,18 +622,20 @@ body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inse
     var open = list.filter(function (b) { return isPending(b) && !status[b.id]; });
     var closed = list.filter(function (b) { return !open.includes(b); });
     var h = '<div class="agenda"><div class="hero"><div class="eyebrow">Panel Digital Arrow</div><h2>Validación de transferencias</h2>' +
-      '<p>Cruzamos cada comprobante con el aviso de Mercado Pago de ' + esc(cfg.name) + ': monto, nombre y código de reserva. El barbero solo recibe la reserva confirmada.</p></div>';
+      '<p>Cruzamos cada reserva pendiente con el comprobante que el banco del cliente envía por correo: monto, nombre y hora. El cliente no tiene que escribir ningún código.</p></div>';
     if (!open.length) h += '<p class="empty">No hay comprobantes por validar. Haz una reserva pagando con transferencia para ver cómo llega aquí.</p>';
     open.forEach(function (b) {
       var s = svc(b.service), c = checking[b.id];
-      h += '<div class="vcard"><div><b>' + esc(b.name) + '</b> <span class="note">· ' + esc(b.code || "") + '</span><div class="note">' + esc(s.name) + ' · ' + esc(fmtLong.format(parseKey(b.date))) + ', ' + b.time + ' · ' + (b.full ? 'servicio completo' : 'abono') + '</div></div>' +
-        receiptHtml(receipts[b.id] || (b.receipt === "ejemplo" ? { sample: true } : b.receipt ? { name: b.receipt } : null), b.id, amt(b), b.code) +
-        '<ul class="checks"><li class="ok">Comprobante recibido</li><li class="' + (c === "found" ? "ok" : "") + '">Monto esperado: ' + clp(amt(b)) + '</li>' +
-        '<li class="' + (c === "found" ? "ok" : "") + '">Código ' + esc(b.code || "") + ' en el comentario</li>' +
-        '<li class="' + (c === "found" ? "ok" : "") + '">' + (c === "searching" ? "Buscando el aviso de Mercado Pago…" : c === "found" ? "Aviso de Mercado Pago encontrado (simulado)" : "Aviso de transferencia recibida en Mercado Pago") + '</li></ul>' +
+      h += '<div class="vcard"><div><b>' + esc(b.name) + '</b><div class="note">' + esc(s.name) + ' · ' + esc(fmtLong.format(parseKey(b.date))) + ', ' + b.time + ' · ' + (b.full ? 'servicio completo' : 'abono') + '</div></div>' +
+        (c === "found" ? bankMail(b.id, amt(b), b.name) : '<p class="note">' + (c === "searching" ? "Buscando el comprobante en el correo…" : "Esperando el comprobante del banco en el correo de la barbería.") + '</p>') +
+        (receipts[b.id] || b.receipt ? '<div class="note">El cliente además adjuntó un comprobante:</div>' + receiptHtml(receipts[b.id] || (b.receipt === "ejemplo" ? { sample: true } : { name: b.receipt })) : "") +
+        '<ul class="checks"><li class="' + (c === "found" ? "ok" : "") + '">Comprobante del banco recibido por correo</li>' +
+        '<li class="' + (c === "found" ? "ok" : "") + '">Monto: ' + clp(amt(b)) + '</li>' +
+        '<li class="' + (c === "found" ? "ok" : "") + '">Nombre del que transfiere: ' + esc(b.name) + '</li>' +
+        '<li class="' + (c === "found" ? "ok" : "") + '">Hora de la transferencia: minutos después de reservar</li></ul>' +
         '<div class="vbtns">' + (c === "found"
           ? '<button type="button" class="btn" style="flex:none;padding:10px 16px" data-validate="' + b.id + '">Validar pago</button>'
-          : '<button type="button" class="small-btn" data-search="' + b.id + '" ' + (c === "searching" ? "disabled" : "") + '>Buscar en Mercado Pago</button>') +
+          : '<button type="button" class="small-btn" data-search="' + b.id + '" ' + (c === "searching" ? "disabled" : "") + '>Buscar en el correo</button>') +
         '<button type="button" class="small-btn" data-reject="' + b.id + '">Rechazar: no llegó</button></div></div>';
     });
     if (closed.length) {
@@ -603,7 +646,7 @@ body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inse
       });
       h += '</div>';
     }
-    h += '<p class="note">En la versión automática, el sistema hace este cruce solo y Digital Arrow revisa únicamente los casos que no calzan.</p></div>';
+    h += '<p class="note">Si el nombre no calza (pagó otra persona), se usa el comprobante adjunto o se le pregunta por WhatsApp. En la fase 2 el sistema hace este cruce solo y Digital Arrow revisa únicamente los casos que no calzan.</p></div>';
     v.innerHTML = h;
   }
 
@@ -622,6 +665,7 @@ body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inse
   document.getElementById("view").addEventListener("click", function (e) {
     var t = e.target.closest("button"); if (!t || t.disabled) return;
     if (t.dataset.go) { if (t.dataset.go === "reserva" && bk.done) { bk = newBk(); } go(t.dataset.go); return; }
+    if (t.dataset.collect) { collected[t.dataset.collect] = true; save(); renderView(); return; }
     if (t.dataset.full !== undefined) { bk.full = t.dataset.full === "1"; renderView(); return; }
     if (t.dataset.quick) { quick(t.dataset.quick); return; }
     if (t.dataset.svc) { bk.service = t.dataset.svc; renderView(); return; }
@@ -684,7 +728,7 @@ body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inse
     save(); renderView();
   }
   [iName, iAbono, iHoras].forEach(function (el) { el.addEventListener("input", onCfg); });
-  document.getElementById("reset").addEventListener("click", function () { custom = []; status = {}; confirmed = {}; outcomes = {}; chatExtra = []; save(); renderView(); });
+  document.getElementById("reset").addEventListener("click", function () { custom = []; status = {}; confirmed = {}; collected = {}; outcomes = {}; chatExtra = []; save(); renderView(); });
 
   fromHash();
 })();
