@@ -260,25 +260,44 @@ body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inse
 <script>
 (function () {
   var SERVICES = [
-    { id: "corte", name: "Corte de pelo", min: 45, price: 12000 },
-    { id: "corte-barba", name: "Corte + barba", min: 60, price: 16000 },
-    { id: "barba", name: "Perfilado de barba", min: 30, price: 7000 },
-    { id: "nino", name: "Corte niño", min: 40, price: 10000 }
+    { id: "degradado", cat: "Hombre", name: "Corte hombre degradado", min: 45, price: 16000 },
+    { id: "clasico", cat: "Hombre", name: "Corte clásico solo tijera", min: 40, price: 13000 },
+    { id: "corte-barba", cat: "Hombre", name: "Corte y barba con paños calientes y vaporizador", min: 75, price: 27000 },
+    { id: "full", cat: "Hombre", name: "Corte, masajeador, barba con paños calientes, perfilado de cejas y mascarilla puntos negros", min: 120, price: 37000 },
+    { id: "barba", cat: "Hombre", name: "Barba con paños calientes y vaporizador", min: 40, price: 13000 },
+    { id: "cejas", cat: "Hombre", name: "Perfilado de cejas", min: 15, price: 3000 },
+    { id: "alisado-h", cat: "Hombre", name: "Alisado permanente hombre", min: 120, price: 60000, from: true },
+    { id: "puntos", cat: "Hombre", name: "Mascarilla puntos negros", min: 20, price: 7000 },
+    { id: "exfoliacion", cat: "Hombre", name: "Exfoliación de rostro con masajeador", min: 30, price: 10000 },
+    { id: "ojos", cat: "Hombre", name: "Mascarilla gel ojos", min: 15, price: 6000 },
+    { id: "pig-barba", cat: "Hombre", name: "Pigmentación de barba", min: 30, price: 10000 },
+    { id: "pig-cejas", cat: "Hombre", name: "Pigmentación de cejas", min: 20, price: 8000 },
+    { id: "canas", cat: "Hombre", name: "Cubrimiento de canas con shampoo especial", min: 30, price: 12000 },
+    { id: "d-corte", cat: "Damas", name: "Corte damas", min: 45, price: 16000 },
+    { id: "d-braching", cat: "Damas", name: "Alisado “braching” (con plancha se suman $8.000)", min: 90, price: 18000, from: true },
+    { id: "d-planchado", cat: "Damas", name: "Planchado", min: 60, price: 15000, from: true },
+    { id: "d-alisado", cat: "Damas", name: "Alisado permanente damas", min: 180, price: 80000, from: true }
   ];
-  var SLOTS = ["10:00", "11:00", "12:00", "13:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
-  var STORE = "barberia-demo-v1";
+  // Lunes, martes, jueves, viernes y sábado 9:30–18:30; domingo 9:30–17:00; colación 12:00–13:00; miércoles libre.
+  function halfHours(from, to) { var out = []; for (var m = from; m < to; m += 30) { if (m >= 720 && m < 780) continue; out.push(String(Math.floor(m / 60)).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0")); } return out; }
+  var SLOTS_WEEK = halfHours(570, 1110), SLOTS_SUN = halfHours(570, 1020);
+  function isClosed(d) { return d.getDay() === 3; }
+  function slotsFor(d) { return isClosed(d) ? [] : d.getDay() === 0 ? SLOTS_SUN : SLOTS_WEEK; }
+  var BANK = { holder: "Diego A. Z. C.", rut: "25.•••.•••-8", bank: "Mercado Pago", type: "Cuenta vista", account: "••••••5324", email: "d•••••@outlook.com" }; // BANK_LINE (datos ocultos en la versión pública)
+  function priceTxt(s) { return (s.from ? "desde " : "") + clp(s.price); }
+  var STORE = "barberia-demo-v2";
 
   function load() { try { var s = JSON.parse(localStorage.getItem(STORE) || "null"); if (s && typeof s === "object") return s; } catch (e) {} return null; }
   function save() { try { localStorage.setItem(STORE, JSON.stringify({ cfg: cfg, custom: custom, status: status, confirmed: confirmed })); } catch (e) {} }
 
   var saved = load() || {};
-  var cfg = Object.assign({ name: "Tu Barbería", abono: 5000, horas: 24 }, saved.cfg || {});
+  var cfg = Object.assign({ name: "Dalejo New Style Barber Shop", abono: 5000, horas: 24 }, saved.cfg || {});
   var custom = Array.isArray(saved.custom) ? saved.custom : [];
   var status = saved.status && typeof saved.status === "object" ? saved.status : {};
   var confirmed = saved.confirmed && typeof saved.confirmed === "object" ? saved.confirmed : {};
   function cardFee(amount) { return Math.round((amount == null ? cfg.abono : amount) * 0.0319 * 1.19); }
   function isPending(b) { return b.pay === "transfer" && !b.seed && !confirmed[b.id]; }
-  function amt(b) { var s = svc(b.service); return b.full && s ? s.price : cfg.abono; }
+  function amt(b) { var s = svc(b.service); return b.full && s && !s.from ? s.price : cfg.abono; }
   function newCode() { return "R-" + (1000 + Math.floor(Math.random() * 9000)); }
   function newBk() { return { step: 1, service: null, date: null, time: null, name: "", phone: "", full: false, method: null, receipt: null, paying: false, done: null, code: newCode() }; }
   var receipts = {};   // bookingId -> { name, dataUrl, sample } (in memory only)
@@ -287,7 +306,7 @@ body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inse
   function receiptHtml(r, id, amount, code) {
     if (!r) return '<p class="note">Sin comprobante adjunto.</p>';
     if (r.dataUrl) return '<img class="receipt-img" src="' + r.dataUrl + '" alt="Comprobante adjuntado por el cliente">';
-    if (r.sample) return '<div class="sample-receipt"><strong>Transferencia exitosa</strong><span>Monto: ' + clp(amount == null ? cfg.abono : amount) + '</span>' + (code ? '<span>Comentario: ' + esc(code) + '</span>' : '') + '<span>Destino: Mercado Pago · [Nombre del barbero]</span><span>Fecha: ' + esc(new Intl.DateTimeFormat("es-CL", { dateStyle: "medium", timeStyle: "short" }).format(new Date())) + '</span><span>N° de operación: ' + opNumber(id || "x") + '</span><span class="note">Comprobante de ejemplo</span></div>';
+    if (r.sample) return '<div class="sample-receipt"><strong>Transferencia exitosa</strong><span>Monto: ' + clp(amount == null ? cfg.abono : amount) + '</span>' + (code ? '<span>Comentario: ' + esc(code) + '</span>' : '') + '<span>Destino: ' + esc(BANK.bank + ' · ' + BANK.holder) + '</span><span>Fecha: ' + esc(new Intl.DateTimeFormat("es-CL", { dateStyle: "medium", timeStyle: "short" }).format(new Date())) + '</span><span>N° de operación: ' + opNumber(id || "x") + '</span><span class="note">Comprobante de ejemplo</span></div>';
     return '<p class="note">Archivo adjunto: ' + esc(r.name) + '</p>';
   }
 
@@ -305,16 +324,16 @@ body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inse
   var today = startOfDay(new Date());
   function seed() {
     var s = [
-      { d: 0, t: "18:00", n: "Matías R.", s: "corte", p: "transfer" },
-      { d: 1, t: "11:00", n: "Diego S.", s: "corte-barba", p: "card", f: true },
-      { d: 1, t: "16:00", n: "Tomás P.", s: "corte", p: "transfer" },
-      { d: 2, t: "12:00", n: "Benjamín L.", s: "barba", p: "transfer" },
-      { d: 3, t: "17:00", n: "Joaquín M.", s: "corte-barba", p: "card" }
+      { d: 0, t: "17:30", n: "Matías R.", s: "degradado", p: "transfer" },
+      { d: 1, t: "10:30", n: "Diego S.", s: "corte-barba", p: "card", f: true },
+      { d: 1, t: "15:00", n: "Tomás P.", s: "clasico", p: "transfer" },
+      { d: 2, t: "13:00", n: "Benjamín L.", s: "barba", p: "transfer" },
+      { d: 3, t: "16:00", n: "Joaquín M.", s: "full", p: "card", f: true }
     ];
     var out = [];
     s.forEach(function (b, i) {
       var day = addDays(today, b.d);
-      if (day.getDay() === 0) day = addDays(day, 1);
+      if (isClosed(day)) day = addDays(day, 1); if (day.getDay() === 0 && b.t > "16:30") day = addDays(day, 1);
       out.push({ id: "seed-" + i, date: key(day), time: b.t, name: b.n, service: b.s, pay: b.p, full: !!b.f, seed: true });
     });
     return out;
@@ -338,32 +357,32 @@ body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inse
   }
   function slotsText(dk) { var s = openSlots(dk); if (s.length > 4) s = s.slice(0, 4); return s.length > 1 ? s.slice(0, -1).join(", ") + " y " + s[s.length - 1] : s.join(""); }
   var QUICK = {
-    precios: function () { return "Estos son nuestros precios:<br>" + SERVICES.map(function (s) { return "• " + esc(s.name) + ": " + clp(s.price) + " (" + s.min + " min)"; }).join("<br>") + bookBtn(); },
+    precios: function () { var top = ["degradado", "clasico", "corte-barba", "full", "barba", "cejas"].map(svc); return "Nuestros precios más pedidos:<br>" + top.map(function (x) { return "• " + esc(x.name) + ": " + priceTxt(x); }).join("<br>") + "<br>La lista completa (faciales, pigmentación, alisados y damas) está en el link 👇" + bookBtn("Ver todos y reservar"); },
     hoy: function () {
       var k = key(today);
-      if (today.getDay() === 0) return "Hoy domingo estamos cerrados. Mañana tengo libre a las " + slotsText(key(addDays(today, 1))) + "." + bookBtn("Ver horas disponibles");
+      if (isClosed(today)) return "Hoy miércoles es nuestro día libre. Mañana tengo libre a las " + slotsText(key(addDays(today, 1))) + "." + bookBtn("Ver horas disponibles");
       var t = slotsText(k);
       if (t) return "¡Sí! Hoy me quedan: " + t + ". Toma la tuya antes que se ocupe 👇" + bookBtn("Reservar para hoy");
       return "Hoy ya estoy completo 😕 Mañana tengo libre a las " + slotsText(firstOpenDay()) + "." + bookBtn("Ver horas disponibles");
     },
-    horario: function () { return "Atendemos de lunes a sábado, de 10:00 a 20:00. Los domingos está cerrado."; },
+    horario: function () { return "Nuestro horario 💈<br>• Lunes, martes, jueves, viernes y sábado: 9:30 a 18:30<br>• Domingo: 9:30 a 17:00<br>• Colación: 12:00 a 13:00<br>• Miércoles: día libre"; },
     direccion: function () { return "Estamos en [Dirección del local], [Comuna].<br>Mapa: [link de Google Maps]<br>Te esperamos 💈"; },
     cancelar: function () { return "Puedes cancelar o cambiar tu hora con al menos " + cfg.horas + " horas de aviso y lo que pagaste pasa a la nueva hora. Si cancelas después o no llegas, el abono de " + clp(cfg.abono) + " no se devuelve."; },
     cambiar: function () { return "¡Sin problema! Si avisas con más de " + cfg.horas + " horas, tu pago pasa a la nueva hora. Elige la que te acomode aquí 👇" + bookBtn("Elegir nueva hora"); },
     atraso: function () { return "Gracias por avisar 🙌 Te esperamos hasta 10 minutos. Después tenemos que pasar al siguiente cliente y la hora cuenta como inasistencia."; },
     abono: function () { return "El abono de " + clp(cfg.abono) + " asegura tu hora: así nadie la toma y no se pierde si alguien no llega. Se descuenta del valor del servicio, no es un cobro extra."; },
     completo: function () { return "¡Sí! Al reservar eliges pagar solo el abono o el servicio completo. Si pagas todo, en el local no pagas nada."; },
-    pago: function () { return "Puedes pagar online con transferencia (sin costo) o con tarjeta de débito o crédito. En el local aceptamos [efectivo / tarjeta]."; },
+    pago: function () { return "Puedes pagar online con transferencia (sin costo) o con tarjeta de débito o crédito. Los servicios se pagan en su totalidad: lo que pagaste al reservar se descuenta y el resto lo pagas en el local con [efectivo / tarjeta / transferencia]."; },
     confirmado: function () { return "Estamos validando tu transferencia. Apenas aparezca en la cuenta te confirmamos por aquí (normalmente en menos de [1 hora]). Si ya pasó más tiempo, mándanos tu código de reserva."; },
     sinhora: function () { return "Atendemos solo con hora reservada, así nadie espera. Si hay un espacio libre hoy, lo ves en el link 👇" + bookBtn("Ver horas de hoy"); },
-    ninos: function () { var n = svc("nino"); return "¡Sí! Corte niño " + clp(n.price) + ", dura unos " + n.min + " minutos." + bookBtn(); },
+    damas: function () { return "¡Sí! Para damas tenemos:<br>" + SERVICES.filter(function (x) { return x.cat === "Damas"; }).map(function (x) { return "• " + esc(x.name) + ": " + priceTxt(x); }).join("<br>") + bookBtn(); },
     estacionamiento: function () { return "[Completar: estacionamiento en la calle / estacionamiento cercano en …]"; }
   };
   var QUICK_Q = {
     precios: "¿Cuánto vale el corte?", hoy: "¿Tienes hora para hoy?", horario: "¿Qué horario tienen?", direccion: "¿Dónde están?",
     cancelar: "¿Y si no puedo ir?", cambiar: "Quiero cambiar mi hora", atraso: "Voy 10 min atrasado", abono: "¿Por qué tengo que pagar abono?",
     completo: "¿Puedo pagar todo de una?", pago: "¿Cómo puedo pagar?", confirmado: "¿Ya les llegó mi transferencia?", sinhora: "¿Atienden sin hora?",
-    ninos: "¿Cortan a niños?", estacionamiento: "¿Hay estacionamiento?"
+    damas: "¿Atienden a mujeres?", estacionamiento: "¿Hay estacionamiento?"
   };
   // Free-text matching for the phase-2 assistant (order matters: more specific first).
   var RULES = [
@@ -374,11 +393,11 @@ body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inse
     [/(cancel|no puedo ir|no alcanzo|no voy a poder|no podre|no podré)/, "cancelar"],
     [/(atras|tarde|demor|en camino|voy llegando)/, "atraso"],
     [/(sin hora|orden de llegada|llegar y|sin reserva)/, "sinhora"],
-    [/(nino|hijo|guagua|cabro chico|menor)/, "ninos"],
+    [/(mujer|dama|senora|señora|polola|alisado|braching|planchado)/, "damas"],
     [/(estacion|auto|parking|aparcar)/, "estacionamiento"],
     [/(\bhoy\b|ahora|disponib|tienes hora|tiene hora|hay hora|hora pa|hora para|cupo)/, "hoy"],
     [/(donde|direccion|ubica|mapa|como llego)/, "direccion"],
-    [/(horario|abren|cierran|atienden|domingo|sabado|que hora)/, "horario"],
+    [/(horario|abren|cierran|atienden|domingo|sabado|miercoles|colacion|que hora)/, "horario"],
     [/(precio|vale|valor|cuesta|sale|cobr|barba|degradado|fade|corte)/, "precios"],
     [/(pag|tarjeta|transfer|efectivo|debito|credito)/, "pago"]
   ];
@@ -416,8 +435,8 @@ body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inse
 
   // ---------- Booking ----------
   var bk = newBk();
-  function firstOpenDay() { for (var i = 0; i < 8; i++) { var d = addDays(today, i); if (d.getDay() !== 0 && openSlots(key(d)).length) return key(d); } return key(addDays(today, 1)); }
-  function openSlots(dk) { var d = parseKey(dk); var now = new Date(); return SLOTS.filter(function (t) { return !isTaken(dk, t) && at(d, t) > now; }); }
+  function firstOpenDay() { for (var i = 0; i < 8; i++) { var d = addDays(today, i); if (!isClosed(d) && openSlots(key(d)).length) return key(d); } return key(addDays(today, 1)); }
+  function openSlots(dk) { var d = parseKey(dk); var now = new Date(); return slotsFor(d).filter(function (t) { return !isTaken(dk, t) && at(d, t) > now; }); }
   function svc(id) { return SERVICES.filter(function (s) { return s.id === id; })[0]; }
   function shopHead() {
     return '<div class="shop"><div class="avatar">' + esc(initials(cfg.name)) + '</div><div><h2>' + esc(cfg.name) + '</h2><small>Reserva online · abono ' + clp(cfg.abono) + '</small></div></div>' +
@@ -439,22 +458,24 @@ body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inse
     }
     h += shopHead();
     if (bk.step === 1) {
+      var lastCat = "";
       h += '<div class="step-title">¿Qué te vas a hacer?</div><div class="list">' + SERVICES.map(function (s) {
-        return '<button type="button" class="option" data-svc="' + s.id + '" aria-pressed="' + (bk.service === s.id) + '"><span><b>' + esc(s.name) + '</b><small>' + s.min + ' min</small></span><span class="price">' + clp(s.price) + '</span></button>';
-      }).join("") + '</div><div class="actions"><button type="button" class="btn" id="bk-next" ' + (bk.service ? "" : "disabled") + '>Elegir día y hora</button></div>';
+        var head = s.cat !== lastCat ? '<div class="eyebrow" style="margin-top:6px">' + esc(s.cat) + '</div>' : ""; lastCat = s.cat;
+        return head + '<button type="button" class="option" data-svc="' + s.id + '" aria-pressed="' + (bk.service === s.id) + '"><span><b>' + esc(s.name) + '</b><small>' + s.min + ' min aprox.</small></span><span class="price">' + priceTxt(s) + '</span></button>';
+      }).join("") + '</div><div class="actions" style="position:sticky;bottom:0;background:var(--surface);padding-top:10px"><button type="button" class="btn" id="bk-next" ' + (bk.service ? "" : "disabled") + '>Elegir día y hora</button></div>';
     } else if (bk.step === 2) {
       if (!bk.date) bk.date = firstOpenDay();
       var days = ""; for (var i = 0; i < 10; i++) {
-        var d = addDays(today, i), k = key(d), closed = d.getDay() === 0, none = !closed && !openSlots(k).length;
+        var d = addDays(today, i), k = key(d), closed = isClosed(d), none = !closed && !openSlots(k).length;
         days += '<button type="button" class="day" data-day="' + k + '" aria-pressed="' + (bk.date === k) + '" ' + (closed || none ? "disabled" : "") + ' aria-label="' + esc(fmtLong.format(d)) + (closed ? ", cerrado" : "") + '"><small>' + (i === 0 ? "hoy" : esc(fmtShortWd.format(d).replace(".", ""))) + '</small><b>' + d.getDate() + '</b></button>';
       }
       var dd = parseKey(bk.date), now = new Date();
-      var slots = SLOTS.map(function (t) {
+      var slots = slotsFor(dd).map(function (t) {
         var off = isTaken(bk.date, t) || at(dd, t) <= now;
         return '<button type="button" class="slot" data-time="' + t + '" aria-pressed="' + (bk.time === t) + '" ' + (off ? 'disabled aria-label="' + t + ' ocupado"' : "") + '>' + t + '</button>';
       }).join("");
       h += '<div class="step-title">Elige día y hora</div><div class="days">' + days + '</div><div class="slots">' + slots + '</div>' +
-        '<p class="note">Las horas tachadas ya están tomadas. Los domingos está cerrado.</p>' +
+        '<p class="note">Las horas tachadas ya están tomadas. Colación de 12:00 a 13:00; los miércoles es día libre.</p>' +
         '<div class="actions"><button type="button" class="btn secondary" id="bk-back">Atrás</button><button type="button" class="btn" id="bk-next" ' + (bk.time ? "" : "disabled") + '>Continuar</button></div>';
     } else if (bk.step === 3) {
       h += '<div class="step-title">Tus datos</div>' +
@@ -463,24 +484,28 @@ body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inse
         '<p class="note">Aquí te llega la confirmación y el recordatorio.</p>' +
         '<div class="actions"><button type="button" class="btn secondary" id="bk-back">Atrás</button><button type="button" class="btn" id="bk-next" ' + (bk.name.trim().length > 1 ? "" : "disabled") + '>Ir a pagar</button></div>';
     } else {
-      var s = svc(bk.service), payNow = bk.full ? s.price : cfg.abono, rest = Math.max(0, s.price - payNow);
+      var s = svc(bk.service);
+      if (s.from) bk.full = false;
+      var payNow = bk.full ? s.price : cfg.abono, rest = Math.max(0, s.price - payNow);
       h += '<div class="step-title">Confirma tu hora</div>' +
         '<div class="step-title" style="font-size:16px">¿Cuánto quieres pagar ahora?</div><div class="list">' +
-        '<button type="button" class="option" data-full="0" aria-pressed="' + (!bk.full) + '"><span><b>Solo el abono</b><small>El resto (' + clp(Math.max(0, s.price - cfg.abono)) + ') lo pagas en el local</small></span><span class="price">' + clp(cfg.abono) + '</span></button>' +
-        '<button type="button" class="option" data-full="1" aria-pressed="' + (!!bk.full) + '"><span><b>Servicio completo</b><small>Pagas una vez y en el local no pagas nada</small></span><span class="price">' + clp(s.price) + '</span></button></div>' +
+        '<button type="button" class="option" data-full="0" aria-pressed="' + (!bk.full) + '"><span><b>Solo el abono</b><small>El resto (' + (s.from ? "desde " : "") + clp(Math.max(0, s.price - cfg.abono)) + ') lo pagas en el local</small></span><span class="price">' + clp(cfg.abono) + '</span></button>' +
+        (s.from
+          ? '<p class="note">Este servicio tiene precio “desde”: el valor final se define en el local, por eso se reserva solo con abono.</p>'
+          : '<button type="button" class="option" data-full="1" aria-pressed="' + (!!bk.full) + '"><span><b>Servicio completo</b><small>Pagas una vez y en el local no pagas nada</small></span><span class="price">' + clp(s.price) + '</span></button>') + '</div>' +
         '<div class="summary">' +
         '<div><span>Servicio</span><span>' + esc(s.name) + '</span></div>' +
         '<div><span>Fecha</span><span>' + esc(fmtLong.format(parseKey(bk.date))) + ', ' + bk.time + '</span></div>' +
-        '<div><span>Valor del servicio</span><span>' + clp(s.price) + '</span></div>' +
-        '<div><span>Pagas en el local</span><span>' + clp(rest) + '</span></div>' +
+        '<div><span>Valor del servicio</span><span>' + priceTxt(s) + '</span></div>' +
+        '<div><span>Pagas en el local</span><span>' + (s.from ? "desde " : "") + clp(rest) + '</span></div>' +
         '<div class="total"><span>' + (bk.full ? 'Total a pagar ahora' : 'Abono a pagar ahora') + '</span><span>' + clp(payNow) + '</span></div></div>' +
         '<div class="step-title" style="font-size:16px">¿Cómo quieres pagar?</div><div class="list">' +
         '<button type="button" class="option" data-method="transfer" aria-pressed="' + (bk.method === "transfer") + '"><span><b>Transferencia bancaria</b><small>Desde tu banco a la cuenta del barbero</small></span><span class="price">' + clp(payNow) + '</span></button>' +
         '<button type="button" class="option" data-method="card" aria-pressed="' + (bk.method === "card") + '"><span><b>Tarjeta de débito o crédito</b><small>Tu hora se confirma al instante</small></span><span class="price">' + clp(payNow) + '</span></button></div>';
       if (bk.method === "transfer") {
-        h += '<div class="bankbox"><div><span>Titular</span><span>[Nombre del barbero]</span></div><div><span>RUT</span><span>[12.345.678-9]</span></div>' +
-          '<div><span>Banco</span><span>Mercado Pago</span></div><div><span>Tipo de cuenta</span><span>Cuenta vista</span></div>' +
-          '<div><span>N° de cuenta</span><span>[0000000000]</span></div><div><span>Monto</span><span>' + clp(payNow) + '</span></div>' +
+        h += '<div class="bankbox"><div><span>Titular</span><span>' + esc(BANK.holder) + '</span></div><div><span>RUT</span><span>' + esc(BANK.rut) + '</span></div>' +
+          '<div><span>Banco</span><span>' + esc(BANK.bank) + '</span></div><div><span>Tipo de cuenta</span><span>' + esc(BANK.type) + '</span></div>' +
+          '<div><span>N° de cuenta</span><span>' + esc(BANK.account) + '</span></div><div><span>Email</span><span>' + esc(BANK.email) + '</span></div><div><span>Monto</span><span>' + clp(payNow) + '</span></div>' +
           '<div><span>Comentario</span><span>' + esc(bk.code) + '</span></div></div>' +
           '<p class="note">Escribe el código <strong>' + esc(bk.code) + '</strong> en el comentario de la transferencia: así identificamos tu pago.</p>' +
           '<div class="upload"><div class="step-title" style="font-size:15px">Adjunta tu comprobante</div>' +
@@ -526,7 +551,7 @@ body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inse
           st === "rechazada" ? '<span class="pill warn">Pago no encontrado · hora liberada</span>' :
           isPending(b) ? '<span class="pill warn">Comprobante en validación</span>' :
           '<span class="pill ok">' + (b.full ? 'Pagado completo ' : 'Abono pagado ') + clp(amt(b)) + (b.pay === "transfer" ? (b.seed ? " · transferencia" : " · validado por Digital Arrow") : " · tarjeta") + '</span>';
-        h += '<div class="appt"><div class="time">' + b.time + '</div><div class="who"><b>' + esc(b.name) + '</b><small>' + esc(s.name) + ' · ' + clp(s.price) + '</small></div>' +
+        h += '<div class="appt"><div class="time">' + b.time + '</div><div class="who"><b>' + esc(b.name) + '</b><small>' + esc(s.name) + ' · ' + priceTxt(s) + '</small></div>' +
           '<div class="foot">' + (b.seed ? "" : '<span class="pill new">Nueva</span>') + pill +
           (st ? "" : '<button type="button" class="small-btn" data-cancel="' + b.id + '">Simular cancelación</button>') + '</div>' +
           (outcomes[b.id] ? '<div class="outcome">' + outcomes[b.id] + '</div>' : "") + '</div>';
@@ -653,7 +678,7 @@ body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inse
   var iName = document.getElementById("cfg-name"), iAbono = document.getElementById("cfg-abono"), iHoras = document.getElementById("cfg-horas");
   iName.value = cfg.name; iAbono.value = cfg.abono; iHoras.value = cfg.horas;
   function onCfg() {
-    cfg.name = iName.value.trim() || "Tu Barbería";
+    cfg.name = iName.value.trim() || "Dalejo New Style Barber Shop";
     var a = parseInt(iAbono.value, 10); if (!isNaN(a) && a >= 0) cfg.abono = a;
     var hr = parseInt(iHoras.value, 10); if (!isNaN(hr) && hr > 0) cfg.horas = hr;
     save(); renderView();
