@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="theme-color" content="#1F3A5F">
+<meta name="theme-color" content="#1A1714">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="Barbería Demo">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/png" href="icon-192.png">
@@ -18,43 +18,55 @@
 <style>
 /* Layout: presenter notes + settings on the left, a phone-sized booking app on the right; one column on phones. Barber-pole stripe is the one flourish. */
 :root {
-  --bg: #F4F5F7;
-  --surface: #FFFFFF;
-  --surface-2: #EEF0F3;
-  --ink: #17202B;
-  --ink-soft: #55606E;
-  --line: #DDE1E6;
-  --accent: #B42B23;      /* barber-pole red */
+  --bg: #EFE6D6;          /* crema de barbería */
+  --surface: #FBF7EF;
+  --surface-2: #F2E9DA;
+  --ink: #1A1714;
+  --ink-soft: #5E554A;
+  --line: #DDD0BB;
+  --accent: #B3261E;      /* rojo del poste */
   --accent-ink: #FFFFFF;
-  --navy: #1F3A5F;        /* barber-pole blue */
+  --navy: #1E3A66;        /* azul del poste */
+  --gold: #8C6414;        /* dorado, versión legible sobre crema */
+  --char: #1A1714;        /* carbón: bandas oscuras en ambos temas */
+  --char-ink: #F3EADB;
+  --char-gold: #E0B860;
   --ok: #1E7A4C;
-  --ok-bg: #E3F3EA;
+  --ok-bg: #E1F0E4;
   --warn: #8A5A00;
-  --warn-bg: #FBF0D9;
-  --chat-bg: #E9E4DC;
+  --warn-bg: #F8EBCB;
+  --chat-bg: #E7DECF;
   --bubble-in: #FFFFFF;
-  --bubble-out: #D7F0D2;
+  --bubble-out: #D9F2CF;
   --font-display: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
   --font-body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
   --radius: 14px;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #0F141A; --surface: #18202A; --surface-2: #212B37; --ink: #EEF1F4; --ink-soft: #A3ADBA;
-    --line: #2C3744; --accent: #E0574D; --accent-ink: #14100F; --navy: #7FA6D8;
+    --bg: #100E0C; --surface: #1B1815; --surface-2: #26221E; --ink: #F3EADB; --ink-soft: #B5A994;
+    --line: #3A332C; --accent: #D63B31; --accent-ink: #FFFFFF; --navy: #8FB0E0; --gold: #E0B860;
+    --char: #070605; --char-ink: #F3EADB; --char-gold: #E0B860;
     --ok: #6FD39C; --ok-bg: #173527; --warn: #F0C062; --warn-bg: #3A2E14;
-    --chat-bg: #141B22; --bubble-in: #1F2933; --bubble-out: #1E3B2C; color-scheme: dark;
+    --chat-bg: #15120F; --bubble-in: #26221E; --bubble-out: #1E3B2C; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #0F141A; --surface: #18202A; --surface-2: #212B37; --ink: #EEF1F4; --ink-soft: #A3ADBA;
-  --line: #2C3744; --accent: #E0574D; --accent-ink: #14100F; --navy: #7FA6D8;
+  --bg: #100E0C; --surface: #1B1815; --surface-2: #26221E; --ink: #F3EADB; --ink-soft: #B5A994;
+  --line: #3A332C; --accent: #D63B31; --accent-ink: #FFFFFF; --navy: #8FB0E0; --gold: #E0B860;
+  --char: #070605; --char-ink: #F3EADB; --char-gold: #E0B860;
   --ok: #6FD39C; --ok-bg: #173527; --warn: #F0C062; --warn-bg: #3A2E14;
-  --chat-bg: #141B22; --bubble-in: #1F2933; --bubble-out: #1E3B2C; color-scheme: dark;
+  --chat-bg: #15120F; --bubble-in: #26221E; --bubble-out: #1E3B2C; color-scheme: dark;
 }
 * { box-sizing: border-box; }
-body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5; }
-.pole { height: 6px; background: repeating-linear-gradient(-45deg, var(--accent) 0 14px, var(--surface) 14px 24px, var(--navy) 24px 38px, var(--surface) 38px 48px); }
+body { background: var(--bg) radial-gradient(ellipse at 15% -10%, color-mix(in srgb, var(--gold) 16%, transparent), transparent 55%) no-repeat; color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5; margin: 0; min-height: 100vh; }
+.pole { height: 12px; background: repeating-linear-gradient(-45deg, #C0281F 0 16px, #F7F2E8 16px 26px, #1E3A66 26px 42px, #F7F2E8 42px 52px); box-shadow: 0 2px 0 var(--char); }
+.gold { color: var(--gold); }
+.hero { background: var(--char); color: var(--char-ink); margin: -20px -20px 0; padding: 18px 20px 16px; position: relative; }
+.hero::after { content: ""; position: absolute; left: 0; right: 0; bottom: -6px; height: 6px; background: repeating-linear-gradient(-45deg, #C0281F 0 10px, #F7F2E8 10px 16px, #1E3A66 16px 26px, #F7F2E8 26px 32px); }
+.hero .eyebrow { color: var(--char-gold); }
+.hero h2 { font-family: var(--font-display); font-weight: 800; font-size: 28px; line-height: 1; text-transform: uppercase; letter-spacing: .02em; margin-top: 4px; color: var(--char-ink); }
+.hero p { color: color-mix(in srgb, var(--char-ink) 78%, transparent); font-size: 13px; margin: 6px 0 0; }
 .wrap { max-width: 1040px; margin: 0 auto; padding-block: 28px 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 440px); gap: 40px; align-items: start; }
 @media (max-width: 860px) { .wrap { grid-template-columns: minmax(0, 1fr); gap: 24px; } .side { order: 2; } }
 h1, h2, h3 { text-wrap: balance; margin: 0; }
@@ -76,19 +88,17 @@ input:focus-visible, button:focus-visible, a:focus-visible { outline: 3px solid 
 .linkish { background: none; border: 0; padding: 0; font: inherit; font-size: 13px; color: var(--navy); text-decoration: underline; cursor: pointer; align-self: start; }
 
 /* Phone */
-.phone { background: var(--surface); border: 1px solid var(--line); border-radius: 28px; overflow: hidden; box-shadow: 0 18px 50px -24px rgba(15, 25, 40, .35); display: flex; flex-direction: column; min-height: 720px; min-width: 0; }
-@media (max-width: 860px) { .phone { min-height: 0; border-radius: 20px; } }
-.demo-tag { background: var(--warn-bg); color: var(--warn); font-size: 12px; font-weight: 600; text-align: center; padding: 6px 12px; }
-.tabs { display: grid; grid-template-columns: repeat(4, 1fr); border-bottom: 1px solid var(--line); background: var(--surface); }
-.tabs a { text-align: center; padding: 12px 6px; font-size: 13px; font-weight: 600; color: var(--ink-soft); text-decoration: none; border-bottom: 3px solid transparent; }
-.tabs a[aria-current="page"] { color: var(--ink); border-bottom-color: var(--accent); }
+.phone { background: var(--surface); border: 8px solid var(--char); border-radius: 34px; overflow: hidden; box-shadow: 0 0 0 1px color-mix(in srgb, var(--char-gold) 35%, transparent), 0 28px 60px -24px rgba(20, 12, 5, .55); display: flex; flex-direction: column; min-height: 720px; min-width: 0; }
+@media (max-width: 860px) { .phone { min-height: 0; border-width: 0; border-radius: 18px; } }
+.demo-tag { background: var(--char); color: var(--char-gold); font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; text-align: center; padding: 7px 12px; border-bottom: 1px solid color-mix(in srgb, var(--char-gold) 30%, transparent); }
+.tabs { display: grid; grid-template-columns: repeat(4, 1fr); background: var(--char); }
+.tabs a { text-align: center; padding: 12px 4px; font-size: 13px; font-weight: 700; color: color-mix(in srgb, var(--char-ink) 62%, transparent); text-decoration: none; border-bottom: 3px solid transparent; }
+.tabs a[aria-current="page"] { color: var(--char-ink); border-bottom-color: #C0281F; }
 .view { flex: 1; display: flex; flex-direction: column; min-height: 0; }
 
 /* Chat */
-.chat-head { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--navy); color: #FFFFFF; }
-:root[data-theme="dark"] .chat-head { color: #0F141A; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .chat-head { color: #0F141A; } }
-.avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; font-family: var(--font-display); font-weight: 800; font-size: 18px; flex: none; }
+.chat-head { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: #1F2C33; color: #FFFFFF; }
+.avatar { width: 40px; height: 40px; border-radius: 50%; background: #B3261E; color: #FFFFFF; display: grid; place-items: center; font-family: var(--font-display); font-weight: 800; font-size: 18px; flex: none; box-shadow: 0 0 0 2px var(--char-gold); }
 .chat-head small { display: block; opacity: .8; font-size: 12px; }
 .chat-body { flex: 1; background: var(--chat-bg); padding: 16px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; min-height: 420px; }
 .msg { max-width: 85%; padding: 9px 12px 6px; border-radius: 12px; font-size: 14.5px; line-height: 1.45; box-shadow: 0 1px 1px rgba(0,0,0,.08); }
@@ -98,15 +108,23 @@ input:focus-visible, button:focus-visible, a:focus-visible { outline: 3px solid 
 .msg .auto { font-size: 11px; font-weight: 600; color: var(--navy); display: block; margin-bottom: 2px; }
 .msg .book-btn { display: block; margin-top: 8px; text-align: center; background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 8px; padding: 9px; font: inherit; font-weight: 700; cursor: pointer; width: 100%; }
 .typing { align-self: flex-start; background: var(--bubble-in); border-radius: 12px; padding: 10px 14px; font-size: 13px; color: var(--ink-soft); }
-.chips { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 16px; background: var(--surface); border-top: 1px solid var(--line); }
-.chip { border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); border-radius: 999px; padding: 7px 12px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
-.chip:hover { border-color: var(--navy); }
+.chips-wrap { background: var(--surface); border-top: 1px solid var(--line); }
+.chips-label { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-soft); padding: 10px 16px 0; }
+.chips { display: flex; flex-wrap: nowrap; gap: 8px; padding: 8px 16px 10px; overflow-x: auto; scrollbar-width: thin; }
+.chip { flex: none; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); border-radius: 999px; padding: 7px 12px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+.chip:hover { border-color: var(--accent); }
+.composer { display: flex; gap: 8px; padding: 0 12px 12px; }
+.composer input { flex: 1; min-width: 0; font: inherit; color: var(--ink); background: var(--surface-2); border: 1px solid var(--line); border-radius: 999px; padding: 10px 14px; }
+.composer button { flex: none; border: 0; border-radius: 999px; padding: 0 16px; font: inherit; font-weight: 700; background: #1E7A4C; color: #FFFFFF; cursor: pointer; }
+.msg .auto.ai { color: var(--accent); }
 
 /* Booking */
 .book { padding: 20px; display: flex; flex-direction: column; gap: 16px; flex: 1; }
-.shop { display: flex; gap: 12px; align-items: center; }
-.shop h2 { font-family: var(--font-display); font-weight: 800; font-size: 26px; line-height: 1; text-transform: uppercase; letter-spacing: .02em; }
-.shop small { color: var(--ink-soft); font-size: 13px; }
+.shop { display: flex; gap: 12px; align-items: center; background: var(--char); color: var(--char-ink); margin: -20px -20px 0; padding: 18px 20px 16px; position: relative; }
+.shop::after { content: ""; position: absolute; left: 0; right: 0; bottom: -6px; height: 6px; background: repeating-linear-gradient(-45deg, #C0281F 0 10px, #F7F2E8 10px 16px, #1E3A66 16px 26px, #F7F2E8 26px 32px); }
+.shop h2 { font-family: var(--font-display); font-weight: 800; font-size: 28px; line-height: 1; text-transform: uppercase; letter-spacing: .02em; color: var(--char-gold); }
+.shop small { color: color-mix(in srgb, var(--char-ink) 78%, transparent); font-size: 13px; }
+.shop + .progress { margin-top: 8px; }
 .progress { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
 .progress span { height: 4px; border-radius: 2px; background: var(--line); }
 .progress span.on { background: var(--accent); }
@@ -122,8 +140,8 @@ input:focus-visible, button:focus-visible, a:focus-visible { outline: 3px solid 
 .day { flex: none; width: 64px; padding: 10px 4px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--ink); font: inherit; text-align: center; cursor: pointer; }
 .day small { display: block; font-size: 12px; color: var(--ink-soft); text-transform: capitalize; }
 .day b { display: block; font-size: 20px; font-variant-numeric: tabular-nums; }
-.day[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
-.day[aria-pressed="true"] small { color: var(--surface); }
+.day[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.day[aria-pressed="true"] small { color: var(--accent-ink); }
 .day:disabled { opacity: .4; cursor: not-allowed; }
 .slots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .slot { padding: 10px 0; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--ink); font: inherit; font-weight: 600; font-variant-numeric: tabular-nums; cursor: pointer; }
@@ -155,7 +173,8 @@ input:focus-visible, button:focus-visible, a:focus-visible { outline: 3px solid 
 .for-barber { font-size: 13px; color: var(--navy); background: var(--surface-2); border-radius: 10px; padding: 10px 12px; }
 .policy { font-size: 13px; color: var(--ink-soft); border-left: 3px solid var(--navy); padding-left: 10px; }
 .actions { display: flex; gap: 10px; margin-top: auto; }
-.btn { flex: 1; border: 0; border-radius: 12px; padding: 14px; font: inherit; font-weight: 700; cursor: pointer; background: var(--accent); color: var(--accent-ink); }
+.btn { flex: 1; border: 0; border-radius: 12px; padding: 14px; font: inherit; font-weight: 700; cursor: pointer; background: var(--accent); color: var(--accent-ink); box-shadow: 0 3px 0 color-mix(in srgb, var(--accent) 55%, #000); }
+.btn:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 color-mix(in srgb, var(--accent) 55%, #000); }
 .btn.secondary { flex: none; background: var(--surface-2); color: var(--ink); padding: 14px 18px; }
 .btn:disabled { opacity: .45; cursor: not-allowed; }
 .done { text-align: center; display: flex; flex-direction: column; gap: 12px; align-items: center; padding-top: 12px; }
@@ -166,7 +185,7 @@ input:focus-visible, button:focus-visible, a:focus-visible { outline: 3px solid 
 /* Agenda */
 .agenda { padding: 20px; display: flex; flex-direction: column; gap: 18px; }
 .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
-.stat { background: var(--surface-2); border-radius: 12px; padding: 12px; }
+.stat { background: var(--surface-2); border-radius: 12px; padding: 12px; border-left: 4px solid var(--gold); }
 .stat b { display: block; font-family: var(--font-display); font-size: 26px; line-height: 1.05; font-variant-numeric: tabular-nums; }
 .stat small { font-size: 12px; color: var(--ink-soft); }
 .day-group h3 { font-size: 13px; font-weight: 700; color: var(--ink-soft); text-transform: capitalize; margin-bottom: 8px; }
@@ -192,14 +211,19 @@ body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inse
 <main class="wrap">
   <section class="side" aria-label="Guía del demo">
     <div class="eyebrow">Demo para presentar</div>
-    <h1>Así se vería tu barbería con reservas y abono</h1>
+    <h1>Así se vería tu barbería con reservas y <span class="gold">pago online</span></h1>
     <p>Muéstrale al barbero el recorrido completo desde el celular de su cliente hasta su propia agenda. Todo es una simulación: no se cobra dinero real ni se envían mensajes.</p>
     <ol class="steps">
-      <li><b>1</b><span><strong>WhatsApp:</strong> el cliente escribe y recibe al instante el link para reservar. Prueba los botones de respuesta rápida.</span></li>
-      <li><b>2</b><span><strong>Reserva:</strong> elige servicio, día y hora, y paga el abono para confirmar.</span></li>
+      <li><b>1</b><span><strong>WhatsApp:</strong> el cliente escribe y recibe al instante el link para reservar. Toca las preguntas frecuentes o escribe la tuya como si fueras cliente.</span></li>
+      <li><b>2</b><span><strong>Reserva:</strong> elige servicio, día y hora, y paga solo el abono o el servicio completo.</span></li>
       <li><b>3</b><span><strong>Agenda:</strong> el barbero ve la reserva nueva con el abono pagado. Simula una cancelación para ver la regla.</span></li>
       <li><b>4</b><span><strong>Validación:</strong> Digital Arrow revisa el comprobante de cada transferencia y lo cruza con la cuenta de Mercado Pago. El barbero no tiene que revisar nada.</span></li>
     </ol>
+    <div class="panel">
+      <h2>Respuestas en WhatsApp: qué es gratis y qué es fase 2</h2>
+      <p class="note"><strong>Respuesta automática</strong> (el saludo con el link) y <strong>respuesta rápida</strong> (el barbero la envía con un toque): incluidas gratis en WhatsApp Business.</p>
+      <p class="note"><strong>Asistente automático</strong> (lo que escribes en el cuadro de texto y se responde solo): es la fase 2, con un asistente conectado a WhatsApp.</p>
+    </div>
     <div class="panel">
       <h2>Ajustes del demo</h2>
       <div class="field">
@@ -252,15 +276,18 @@ body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inse
   var custom = Array.isArray(saved.custom) ? saved.custom : [];
   var status = saved.status && typeof saved.status === "object" ? saved.status : {};
   var confirmed = saved.confirmed && typeof saved.confirmed === "object" ? saved.confirmed : {};
-  function cardFee() { return Math.round(cfg.abono * 0.0319 * 1.19); }
+  function cardFee(amount) { return Math.round((amount == null ? cfg.abono : amount) * 0.0319 * 1.19); }
   function isPending(b) { return b.pay === "transfer" && !b.seed && !confirmed[b.id]; }
+  function amt(b) { var s = svc(b.service); return b.full && s ? s.price : cfg.abono; }
+  function newCode() { return "R-" + (1000 + Math.floor(Math.random() * 9000)); }
+  function newBk() { return { step: 1, service: null, date: null, time: null, name: "", phone: "", full: false, method: null, receipt: null, paying: false, done: null, code: newCode() }; }
   var receipts = {};   // bookingId -> { name, dataUrl, sample } (in memory only)
   var checking = {};   // bookingId -> "searching" | "found"
   var opNumber = function (id) { var n = 0; for (var i = 0; i < id.length; i++) n = (n * 31 + id.charCodeAt(i)) >>> 0; return String(40000000 + (n % 9999999)); };
-  function receiptHtml(r, id) {
+  function receiptHtml(r, id, amount, code) {
     if (!r) return '<p class="note">Sin comprobante adjunto.</p>';
     if (r.dataUrl) return '<img class="receipt-img" src="' + r.dataUrl + '" alt="Comprobante adjuntado por el cliente">';
-    if (r.sample) return '<div class="sample-receipt"><strong>Transferencia exitosa</strong><span>Monto: ' + clp(cfg.abono) + '</span><span>Destino: Mercado Pago · [Nombre del barbero]</span><span>Fecha: ' + esc(new Intl.DateTimeFormat("es-CL", { dateStyle: "medium", timeStyle: "short" }).format(new Date())) + '</span><span>N° de operación: ' + opNumber(id || "x") + '</span><span class="note">Comprobante de ejemplo</span></div>';
+    if (r.sample) return '<div class="sample-receipt"><strong>Transferencia exitosa</strong><span>Monto: ' + clp(amount == null ? cfg.abono : amount) + '</span>' + (code ? '<span>Comentario: ' + esc(code) + '</span>' : '') + '<span>Destino: Mercado Pago · [Nombre del barbero]</span><span>Fecha: ' + esc(new Intl.DateTimeFormat("es-CL", { dateStyle: "medium", timeStyle: "short" }).format(new Date())) + '</span><span>N° de operación: ' + opNumber(id || "x") + '</span><span class="note">Comprobante de ejemplo</span></div>';
     return '<p class="note">Archivo adjunto: ' + esc(r.name) + '</p>';
   }
 
@@ -279,7 +306,7 @@ body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inse
   function seed() {
     var s = [
       { d: 0, t: "18:00", n: "Matías R.", s: "corte", p: "transfer" },
-      { d: 1, t: "11:00", n: "Diego S.", s: "corte-barba", p: "card" },
+      { d: 1, t: "11:00", n: "Diego S.", s: "corte-barba", p: "card", f: true },
       { d: 1, t: "16:00", n: "Tomás P.", s: "corte", p: "transfer" },
       { d: 2, t: "12:00", n: "Benjamín L.", s: "barba", p: "transfer" },
       { d: 3, t: "17:00", n: "Joaquín M.", s: "corte-barba", p: "card" }
@@ -288,7 +315,7 @@ body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inse
     s.forEach(function (b, i) {
       var day = addDays(today, b.d);
       if (day.getDay() === 0) day = addDays(day, 1);
-      out.push({ id: "seed-" + i, date: key(day), time: b.t, name: b.n, service: b.s, pay: b.p, seed: true });
+      out.push({ id: "seed-" + i, date: key(day), time: b.t, name: b.n, service: b.s, pay: b.p, full: !!b.f, seed: true });
     });
     return out;
   }
@@ -303,43 +330,92 @@ body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inse
 
   // ---------- Chat ----------
   var chatExtra = [];
+  function bookBtn(label) { return '<button type="button" class="book-btn" data-go="reserva">' + esc(label || "Reservar hora") + '</button>'; }
   function botIntro() {
     return '<span class="auto">Respuesta automática</span>Hola, gracias por escribir a ' + esc(cfg.name) +
-      '. Reserva tu hora aquí. Para confirmar se paga un abono de ' + clp(cfg.abono) +
-      ' que se descuenta del servicio.<button type="button" class="book-btn" data-go="reserva">Reservar hora</button><span class="meta">10:42</span>';
+      ' 💈 Reserva tu hora aquí. Para confirmar se paga un abono de ' + clp(cfg.abono) +
+      ' que se descuenta del servicio, o si prefieres pagas el servicio completo y en el local no pagas nada.' + bookBtn() + '<span class="meta">10:42</span>';
   }
+  function slotsText(dk) { var s = openSlots(dk); if (s.length > 4) s = s.slice(0, 4); return s.length > 1 ? s.slice(0, -1).join(", ") + " y " + s[s.length - 1] : s.join(""); }
   var QUICK = {
-    precios: function () { return SERVICES.map(function (s) { return s.name + ": " + clp(s.price); }).join("<br>"); },
+    precios: function () { return "Estos son nuestros precios:<br>" + SERVICES.map(function (s) { return "• " + esc(s.name) + ": " + clp(s.price) + " (" + s.min + " min)"; }).join("<br>") + bookBtn(); },
+    hoy: function () {
+      var k = key(today);
+      if (today.getDay() === 0) return "Hoy domingo estamos cerrados. Mañana tengo libre a las " + slotsText(key(addDays(today, 1))) + "." + bookBtn("Ver horas disponibles");
+      var t = slotsText(k);
+      if (t) return "¡Sí! Hoy me quedan: " + t + ". Toma la tuya antes que se ocupe 👇" + bookBtn("Reservar para hoy");
+      return "Hoy ya estoy completo 😕 Mañana tengo libre a las " + slotsText(firstOpenDay()) + "." + bookBtn("Ver horas disponibles");
+    },
     horario: function () { return "Atendemos de lunes a sábado, de 10:00 a 20:00. Los domingos está cerrado."; },
-    direccion: function () { return "Estamos en [Dirección del local]. Te esperamos."; },
-    cancelar: function () { return "Puedes cancelar o cambiar tu hora con al menos " + cfg.horas + " horas de aviso y tu abono pasa a la nueva hora. Si cancelas después o no llegas, el abono no se devuelve."; }
+    direccion: function () { return "Estamos en [Dirección del local], [Comuna].<br>Mapa: [link de Google Maps]<br>Te esperamos 💈"; },
+    cancelar: function () { return "Puedes cancelar o cambiar tu hora con al menos " + cfg.horas + " horas de aviso y lo que pagaste pasa a la nueva hora. Si cancelas después o no llegas, el abono de " + clp(cfg.abono) + " no se devuelve."; },
+    cambiar: function () { return "¡Sin problema! Si avisas con más de " + cfg.horas + " horas, tu pago pasa a la nueva hora. Elige la que te acomode aquí 👇" + bookBtn("Elegir nueva hora"); },
+    atraso: function () { return "Gracias por avisar 🙌 Te esperamos hasta 10 minutos. Después tenemos que pasar al siguiente cliente y la hora cuenta como inasistencia."; },
+    abono: function () { return "El abono de " + clp(cfg.abono) + " asegura tu hora: así nadie la toma y no se pierde si alguien no llega. Se descuenta del valor del servicio, no es un cobro extra."; },
+    completo: function () { return "¡Sí! Al reservar eliges pagar solo el abono o el servicio completo. Si pagas todo, en el local no pagas nada."; },
+    pago: function () { return "Puedes pagar online con transferencia (sin costo) o con tarjeta de débito o crédito. En el local aceptamos [efectivo / tarjeta]."; },
+    confirmado: function () { return "Estamos validando tu transferencia. Apenas aparezca en la cuenta te confirmamos por aquí (normalmente en menos de [1 hora]). Si ya pasó más tiempo, mándanos tu código de reserva."; },
+    sinhora: function () { return "Atendemos solo con hora reservada, así nadie espera. Si hay un espacio libre hoy, lo ves en el link 👇" + bookBtn("Ver horas de hoy"); },
+    ninos: function () { var n = svc("nino"); return "¡Sí! Corte niño " + clp(n.price) + ", dura unos " + n.min + " minutos." + bookBtn(); },
+    estacionamiento: function () { return "[Completar: estacionamiento en la calle / estacionamiento cercano en …]"; }
   };
-  var QUICK_Q = { precios: "¿Cuánto vale el corte?", horario: "¿Qué horario tienen?", direccion: "¿Dónde están?", cancelar: "¿Y si no puedo ir?" };
+  var QUICK_Q = {
+    precios: "¿Cuánto vale el corte?", hoy: "¿Tienes hora para hoy?", horario: "¿Qué horario tienen?", direccion: "¿Dónde están?",
+    cancelar: "¿Y si no puedo ir?", cambiar: "Quiero cambiar mi hora", atraso: "Voy 10 min atrasado", abono: "¿Por qué tengo que pagar abono?",
+    completo: "¿Puedo pagar todo de una?", pago: "¿Cómo puedo pagar?", confirmado: "¿Ya les llegó mi transferencia?", sinhora: "¿Atienden sin hora?",
+    ninos: "¿Cortan a niños?", estacionamiento: "¿Hay estacionamiento?"
+  };
+  // Free-text matching for the phase-2 assistant (order matters: more specific first).
+  var RULES = [
+    [/(llego|llegó|recibi|recibieron|confirm|valid|comprobante)/, "confirmado"],
+    [/(abono|garantia|para que pago|por que pago|por que tengo que pagar)/, "abono"],
+    [/(todo de una|completo|total|pagar todo|pago todo)/, "completo"],
+    [/(cambi|reagend|mover|otro dia|otra hora)/, "cambiar"],
+    [/(cancel|no puedo ir|no alcanzo|no voy a poder|no podre|no podré)/, "cancelar"],
+    [/(atras|tarde|demor|en camino|voy llegando)/, "atraso"],
+    [/(sin hora|orden de llegada|llegar y|sin reserva)/, "sinhora"],
+    [/(nino|hijo|guagua|cabro chico|menor)/, "ninos"],
+    [/(estacion|auto|parking|aparcar)/, "estacionamiento"],
+    [/(\bhoy\b|ahora|disponib|tienes hora|tiene hora|hay hora|hora pa|hora para|cupo)/, "hoy"],
+    [/(donde|direccion|ubica|mapa|como llego)/, "direccion"],
+    [/(horario|abren|cierran|atienden|domingo|sabado|que hora)/, "horario"],
+    [/(precio|vale|valor|cuesta|sale|cobr|barba|degradado|fade|corte)/, "precios"],
+    [/(pag|tarjeta|transfer|efectivo|debito|credito)/, "pago"]
+  ];
+  function norm(s) { return String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, ""); }
+  function matchText(text) {
+    var n = norm(text);
+    for (var i = 0; i < RULES.length; i++) if (RULES[i][0].test(n)) return QUICK[RULES[i][1]]();
+    if (/^(hola|buenas|buenos|wena|holi|hey)\b/.test(n)) return "¡Hola! 👋 Bienvenido a " + esc(cfg.name) + ". Reserva tu hora directo aquí:" + bookBtn();
+    if (/(gracias|vale|ok|dale|listo|perfecto)/.test(n)) return "¡A ti! Nos vemos 💈";
+    return "Gracias por escribir. Estoy atendiendo y te respondo apenas termine. Si quieres reservar, puedes hacerlo directo aquí:" + bookBtn();
+  }
   function renderChat(v) {
     var html = '<div class="chat-head"><div class="avatar">' + esc(initials(cfg.name)) + '</div><div><strong>' + esc(cfg.name) +
       '</strong><small>Cuenta de empresa</small></div></div><div class="chat-body" id="chat-body">' +
       '<div class="msg out">Hola, ¿tienes hora para mañana?<span class="meta">10:42</span></div>' +
       '<div class="msg in">' + botIntro() + '</div>';
     chatExtra.forEach(function (m) {
-      html += '<div class="msg ' + m.side + '">' + (m.side === "in" ? '<span class="auto">Respuesta rápida</span>' : "") + m.html + '<span class="meta">' + m.time + '</span></div>';
+      html += '<div class="msg ' + m.side + '">' + (m.side === "in" ? '<span class="auto' + (m.ai ? ' ai' : '') + '">' + (m.ai ? 'Asistente automático · fase 2' : 'Respuesta rápida') + '</span>' : "") + m.html + '<span class="meta">' + m.time + '</span></div>';
     });
-    html += '</div><div class="chips" role="group" aria-label="Preguntas frecuentes del cliente">' +
+    html += '</div><div class="chips-wrap"><div class="chips-label">Preguntas frecuentes · desliza →</div><div class="chips" role="group" aria-label="Preguntas frecuentes del cliente">' +
       Object.keys(QUICK_Q).map(function (k) { return '<button type="button" class="chip" data-quick="' + k + '">' + esc(QUICK_Q[k]) + '</button>'; }).join("") +
-      '</div>';
+      '</div><form class="composer" id="composer" autocomplete="off"><input type="text" id="chat-input" maxlength="160" placeholder="Escribe como si fueras cliente…" aria-label="Mensaje del cliente"><button type="submit">Enviar</button></form></div>';
     v.innerHTML = html;
     var body = document.getElementById("chat-body"); body.scrollTop = body.scrollHeight;
   }
-  function quick(k) {
+  function reply(question, answerFn, ai) {
     var now = fmtTime.format(new Date());
-    chatExtra.push({ side: "out", html: esc(QUICK_Q[k]), time: now });
+    chatExtra.push({ side: "out", html: esc(question), time: now });
     renderView();
     var body = document.getElementById("chat-body");
     var t = document.createElement("div"); t.className = "typing"; t.textContent = "escribiendo…"; body.appendChild(t); body.scrollTop = body.scrollHeight;
-    setTimeout(function () { chatExtra.push({ side: "in", html: QUICK[k](), time: now }); if (view === "chat") renderView(); }, 700);
+    setTimeout(function () { chatExtra.push({ side: "in", html: answerFn(), time: now, ai: !!ai }); if (view === "chat") { renderView(); if (ai) { var i = document.getElementById("chat-input"); if (i) i.focus(); } } }, 750);
   }
+  function quick(k) { reply(QUICK_Q[k], QUICK[k], false); }
 
   // ---------- Booking ----------
-  var bk = { step: 1, service: null, date: null, time: null, name: "", phone: "", method: null, receipt: null, paying: false, done: null };
+  var bk = newBk();
   function firstOpenDay() { for (var i = 0; i < 8; i++) { var d = addDays(today, i); if (d.getDay() !== 0 && openSlots(key(d)).length) return key(d); } return key(addDays(today, 1)); }
   function openSlots(dk) { var d = parseKey(dk); var now = new Date(); return SLOTS.filter(function (t) { return !isTaken(dk, t) && at(d, t) > now; }); }
   function svc(id) { return SERVICES.filter(function (s) { return s.id === id; })[0]; }
@@ -350,11 +426,13 @@ body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inse
   function renderBook(v) {
     var h = '<div class="book">';
     if (bk.done) {
-      var b = bk.done, s = svc(b.service);
+      var b = bk.done, s = svc(b.service), paid = amt(b), rest = Math.max(0, s.price - paid);
+      var restTxt = rest ? 'En el local pagas ' + clp(rest) + '.' : 'En el local no pagas nada.';
       h += '<div class="done"><div class="check" aria-hidden="true">✓</div><h3>¡Hora reservada!</h3><p>' + esc(s.name) + ', ' + esc(fmtLong.format(parseKey(b.date))) + ' a las ' + b.time + '.</p>' +
+        '<p class="note">Código de reserva: <strong>' + esc(b.code) + '</strong></p>' +
         (b.pay === "transfer"
-          ? '<p>Recibimos tu comprobante de <strong>' + clp(cfg.abono) + '</strong>. Lo validamos y te confirmamos por WhatsApp. En el local pagas ' + clp(Math.max(0, s.price - cfg.abono)) + '.</p>'
-          : '<p>Abono pagado: <strong>' + clp(cfg.abono) + '</strong>. En el local pagas ' + clp(Math.max(0, s.price - cfg.abono)) + '.</p>') +
+          ? '<p>Recibimos tu comprobante de <strong>' + clp(paid) + '</strong>. Lo validamos y te confirmamos por WhatsApp. ' + restTxt + '</p>'
+          : '<p>' + (b.full ? 'Servicio pagado completo' : 'Abono pagado') + ': <strong>' + clp(paid) + '</strong>. ' + restTxt + '</p>') +
         '<p class="note">Te llegará un recordatorio por WhatsApp el día anterior.</p></div>' +
         '<div class="actions"><button type="button" class="btn secondary" id="bk-new">Otra reserva</button><button type="button" class="btn" data-go="agenda">Ver en la agenda del barbero</button></div>';
       v.innerHTML = h + '</div>'; return;
@@ -383,34 +461,39 @@ body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inse
         '<div class="field"><label for="bk-name">Nombre</label><input type="text" id="bk-name" autocomplete="off" placeholder="Ej: Martín Rojas" value="' + esc(bk.name) + '"></div>' +
         '<div class="field"><label for="bk-phone">WhatsApp</label><input type="tel" id="bk-phone" autocomplete="off" placeholder="+56 9 1234 5678" value="' + esc(bk.phone) + '"></div>' +
         '<p class="note">Aquí te llega la confirmación y el recordatorio.</p>' +
-        '<div class="actions"><button type="button" class="btn secondary" id="bk-back">Atrás</button><button type="button" class="btn" id="bk-next" ' + (bk.name.trim().length > 1 ? "" : "disabled") + '>Ir a pagar el abono</button></div>';
+        '<div class="actions"><button type="button" class="btn secondary" id="bk-back">Atrás</button><button type="button" class="btn" id="bk-next" ' + (bk.name.trim().length > 1 ? "" : "disabled") + '>Ir a pagar</button></div>';
     } else {
-      var s = svc(bk.service);
-      h += '<div class="step-title">Confirma con tu abono</div><div class="summary">' +
+      var s = svc(bk.service), payNow = bk.full ? s.price : cfg.abono, rest = Math.max(0, s.price - payNow);
+      h += '<div class="step-title">Confirma tu hora</div>' +
+        '<div class="step-title" style="font-size:16px">¿Cuánto quieres pagar ahora?</div><div class="list">' +
+        '<button type="button" class="option" data-full="0" aria-pressed="' + (!bk.full) + '"><span><b>Solo el abono</b><small>El resto (' + clp(Math.max(0, s.price - cfg.abono)) + ') lo pagas en el local</small></span><span class="price">' + clp(cfg.abono) + '</span></button>' +
+        '<button type="button" class="option" data-full="1" aria-pressed="' + (!!bk.full) + '"><span><b>Servicio completo</b><small>Pagas una vez y en el local no pagas nada</small></span><span class="price">' + clp(s.price) + '</span></button></div>' +
+        '<div class="summary">' +
         '<div><span>Servicio</span><span>' + esc(s.name) + '</span></div>' +
         '<div><span>Fecha</span><span>' + esc(fmtLong.format(parseKey(bk.date))) + ', ' + bk.time + '</span></div>' +
         '<div><span>Valor del servicio</span><span>' + clp(s.price) + '</span></div>' +
-        '<div><span>Pagas en el local</span><span>' + clp(Math.max(0, s.price - cfg.abono)) + '</span></div>' +
-        '<div class="total"><span>Abono a pagar ahora</span><span>' + clp(cfg.abono) + '</span></div></div>' +
-        '<div class="step-title" style="font-size:16px">¿Cómo quieres pagar el abono?</div><div class="list">' +
-        '<button type="button" class="option" data-method="transfer" aria-pressed="' + (bk.method === "transfer") + '"><span><b>Transferencia bancaria</b><small>Desde tu banco a la cuenta del barbero</small></span><span class="price">' + clp(cfg.abono) + '</span></button>' +
-        '<button type="button" class="option" data-method="card" aria-pressed="' + (bk.method === "card") + '"><span><b>Tarjeta de débito o crédito</b><small>Tu hora se confirma al instante</small></span><span class="price">' + clp(cfg.abono) + '</span></button></div>';
+        '<div><span>Pagas en el local</span><span>' + clp(rest) + '</span></div>' +
+        '<div class="total"><span>' + (bk.full ? 'Total a pagar ahora' : 'Abono a pagar ahora') + '</span><span>' + clp(payNow) + '</span></div></div>' +
+        '<div class="step-title" style="font-size:16px">¿Cómo quieres pagar?</div><div class="list">' +
+        '<button type="button" class="option" data-method="transfer" aria-pressed="' + (bk.method === "transfer") + '"><span><b>Transferencia bancaria</b><small>Desde tu banco a la cuenta del barbero</small></span><span class="price">' + clp(payNow) + '</span></button>' +
+        '<button type="button" class="option" data-method="card" aria-pressed="' + (bk.method === "card") + '"><span><b>Tarjeta de débito o crédito</b><small>Tu hora se confirma al instante</small></span><span class="price">' + clp(payNow) + '</span></button></div>';
       if (bk.method === "transfer") {
         h += '<div class="bankbox"><div><span>Titular</span><span>[Nombre del barbero]</span></div><div><span>RUT</span><span>[12.345.678-9]</span></div>' +
           '<div><span>Banco</span><span>Mercado Pago</span></div><div><span>Tipo de cuenta</span><span>Cuenta vista</span></div>' +
-          '<div><span>N° de cuenta</span><span>[0000000000]</span></div><div><span>Monto</span><span>' + clp(cfg.abono) + '</span></div>' +
-          '<div><span>Comentario</span><span>' + esc(bk.name.trim() || "Tu nombre") + '</span></div></div>' +
+          '<div><span>N° de cuenta</span><span>[0000000000]</span></div><div><span>Monto</span><span>' + clp(payNow) + '</span></div>' +
+          '<div><span>Comentario</span><span>' + esc(bk.code) + '</span></div></div>' +
+          '<p class="note">Escribe el código <strong>' + esc(bk.code) + '</strong> en el comentario de la transferencia: así identificamos tu pago.</p>' +
           '<div class="upload"><div class="step-title" style="font-size:15px">Adjunta tu comprobante</div>' +
-          (bk.receipt ? receiptHtml(bk.receipt, "nuevo") : "") +
+          (bk.receipt ? receiptHtml(bk.receipt, "nuevo", payNow, bk.code) : "") +
           '<input type="file" id="bk-receipt" accept="image/*,application/pdf"><label class="file" for="bk-receipt">' + (bk.receipt ? "Cambiar comprobante" : "Subir foto o PDF del comprobante") + '</label>' +
           (bk.receipt ? "" : '<button type="button" class="linkish" id="bk-sample">Usar un comprobante de ejemplo</button>') + '</div>' +
           '<p class="note">Tu hora queda reservada como pendiente mientras validamos que la transferencia llegó. Te confirmamos por WhatsApp.</p>';
       } else if (bk.method === "card") {
         h += '<p class="note">En la versión real, este botón abre el pago de Mercado Pago. En el demo, el pago es simulado.</p>';
       }
-      h += '<p class="policy">Puedes cambiar tu hora con al menos ' + cfg.horas + ' horas de aviso y el abono pasa a la nueva hora. Si cancelas después o no llegas, el abono no se devuelve.</p>' +
-        '<p class="for-barber"><strong>Para el barbero:</strong> con transferencia recibe ' + clp(cfg.abono) + ' completos. Con tarjeta recibe unos ' + clp(cfg.abono - cardFee()) + ' (comisión de 3,19% + IVA).</p>';
-      var payLabel = bk.paying ? (bk.method === "transfer" ? "Guardando…" : "Procesando pago…") : (bk.method === "transfer" ? (bk.receipt ? "Enviar comprobante" : "Adjunta el comprobante") : bk.method === "card" ? "Pagar abono de " + clp(cfg.abono) : "Elige cómo pagar");
+      h += '<p class="policy">Puedes cambiar tu hora con al menos ' + cfg.horas + ' horas de aviso y lo que pagaste pasa a la nueva hora. Si cancelas después o no llegas, pierdes el abono de ' + clp(cfg.abono) + (bk.full ? ' y el resto queda como saldo a favor para tu próxima hora' : '') + '.</p>' +
+        '<p class="for-barber"><strong>Para el barbero:</strong> con transferencia recibe ' + clp(payNow) + ' completos. Con tarjeta recibe unos ' + clp(payNow - cardFee(payNow)) + ' (comisión de 3,19% + IVA).</p>';
+      var payLabel = bk.paying ? (bk.method === "transfer" ? "Guardando…" : "Procesando pago…") : (bk.method === "transfer" ? (bk.receipt ? "Enviar comprobante" : "Adjunta el comprobante") : bk.method === "card" ? "Pagar " + clp(payNow) : "Elige cómo pagar");
       h += '<div class="actions"><button type="button" class="btn secondary" id="bk-back" ' + (bk.paying ? "disabled" : "") + '>Atrás</button><button type="button" class="btn" id="bk-pay" ' + (bk.paying || !bk.method || (bk.method === "transfer" && !bk.receipt) ? "disabled" : "") + '>' + payLabel + '</button></div>';
     }
     v.innerHTML = h + '</div>';
@@ -424,9 +507,10 @@ body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inse
     var paidList = week.filter(function (b) { return status[b.id] !== "liberada" && !isPending(b); });
     var covered = week.filter(function (b) { return status[b.id] === "perdida"; }).length;
     var pendingCount = week.filter(function (b) { return isPending(b) && !status[b.id]; }).length;
-    var saved = paidList.filter(function (b) { return b.pay === "transfer"; }).length * cardFee();
-    var h = '<div class="agenda"><div><div class="eyebrow">Vista del barbero</div><h2 style="font-size:20px;margin-top:4px">Tu agenda de la semana</h2></div>' +
-      '<div class="stats"><div class="stat"><b>' + week.length + '</b><small>reservas</small></div><div class="stat"><b>' + clp(paidList.length * cfg.abono) + '</b><small>en abonos recibidos</small></div>' +
+    var saved = paidList.filter(function (b) { return b.pay === "transfer"; }).reduce(function (sum, b) { return sum + cardFee(amt(b)); }, 0);
+    var received = paidList.reduce(function (sum, b) { return sum + amt(b); }, 0);
+    var h = '<div class="agenda"><div class="hero"><div class="eyebrow">Vista del barbero</div><h2>Tu agenda de la semana</h2></div>' +
+      '<div class="stats"><div class="stat"><b>' + week.length + '</b><small>reservas</small></div><div class="stat"><b>' + clp(received) + '</b><small>en pagos recibidos</small></div>' +
       '<div class="stat"><b>' + clp(saved) + '</b><small>ahorrado en comisiones por transferencias</small></div><div class="stat"><b>' + covered + '</b><small>cancelaciones cubiertas</small></div></div>' +
       (pendingCount ? '<p class="for-barber"><strong>' + pendingCount + (pendingCount === 1 ? ' comprobante en validación.' : ' comprobantes en validación.') + '</strong> Digital Arrow los revisa por ti y te avisa cuando quedan confirmados. No tienes que hacer nada.</p>' : '');
     var groups = {};
@@ -441,7 +525,7 @@ body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inse
           st === "liberada" ? '<span class="pill warn">Reprogramar · abono guardado</span>' :
           st === "rechazada" ? '<span class="pill warn">Pago no encontrado · hora liberada</span>' :
           isPending(b) ? '<span class="pill warn">Comprobante en validación</span>' :
-          '<span class="pill ok">Abono pagado ' + clp(cfg.abono) + (b.pay === "transfer" ? (b.seed ? " · transferencia" : " · validado por Digital Arrow") : " · tarjeta") + '</span>';
+          '<span class="pill ok">' + (b.full ? 'Pagado completo ' : 'Abono pagado ') + clp(amt(b)) + (b.pay === "transfer" ? (b.seed ? " · transferencia" : " · validado por Digital Arrow") : " · tarjeta") + '</span>';
         h += '<div class="appt"><div class="time">' + b.time + '</div><div class="who"><b>' + esc(b.name) + '</b><small>' + esc(s.name) + ' · ' + clp(s.price) + '</small></div>' +
           '<div class="foot">' + (b.seed ? "" : '<span class="pill new">Nueva</span>') + pill +
           (st ? "" : '<button type="button" class="small-btn" data-cancel="' + b.id + '">Simular cancelación</button>') + '</div>' +
@@ -457,10 +541,11 @@ body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inse
     var hrs = (at(parseKey(b.date), b.time) - new Date()) / 36e5;
     if (hrs >= cfg.horas) {
       status[id] = "liberada";
-      outcomes[id] = "Avisó con " + Math.floor(hrs) + " h de anticipación (más de " + cfg.horas + " h): la hora queda libre para otro cliente y el abono pasa a su nueva reserva.";
+      outcomes[id] = "Avisó con " + Math.floor(hrs) + " h de anticipación (más de " + cfg.horas + " h): la hora queda libre para otro cliente y lo que pagó (" + clp(amt(b)) + ") pasa a su nueva reserva.";
     } else {
       status[id] = "perdida";
-      outcomes[id] = (hrs > 0 ? "Avisó con solo " + Math.max(0, Math.floor(hrs)) + " h" : "No llegó") + " (menos de " + cfg.horas + " h): el abono de " + clp(cfg.abono) + " queda para ti y no pierdes toda la hora.";
+      outcomes[id] = (hrs > 0 ? "Avisó con solo " + Math.max(0, Math.floor(hrs)) + " h" : "No llegó") + " (menos de " + cfg.horas + " h): el abono de " + clp(cfg.abono) + " queda para ti y no pierdes toda la hora." +
+        (b.full ? " Como pagó el servicio completo, los otros " + clp(Math.max(0, amt(b) - cfg.abono)) + " quedan como saldo a favor para su próxima hora." : "");
     }
     save(); renderView();
   }
@@ -470,17 +555,18 @@ body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inse
     var list = custom.filter(function (b) { return b.pay === "transfer"; }).slice().reverse();
     var open = list.filter(function (b) { return isPending(b) && !status[b.id]; });
     var closed = list.filter(function (b) { return !open.includes(b); });
-    var h = '<div class="agenda"><div><div class="eyebrow">Panel Digital Arrow</div><h2 style="font-size:20px;margin-top:4px">Validación de transferencias</h2>' +
-      '<p class="note" style="margin-top:6px">Revisamos cada comprobante y lo cruzamos con los movimientos de la cuenta Mercado Pago de ' + esc(cfg.name) + '. El barbero solo recibe la reserva confirmada.</p></div>';
+    var h = '<div class="agenda"><div class="hero"><div class="eyebrow">Panel Digital Arrow</div><h2>Validación de transferencias</h2>' +
+      '<p>Cruzamos cada comprobante con el aviso de Mercado Pago de ' + esc(cfg.name) + ': monto, nombre y código de reserva. El barbero solo recibe la reserva confirmada.</p></div>';
     if (!open.length) h += '<p class="empty">No hay comprobantes por validar. Haz una reserva pagando con transferencia para ver cómo llega aquí.</p>';
     open.forEach(function (b) {
       var s = svc(b.service), c = checking[b.id];
-      h += '<div class="vcard"><div><b>' + esc(b.name) + '</b><div class="note">' + esc(s.name) + ' · ' + esc(fmtLong.format(parseKey(b.date))) + ', ' + b.time + '</div></div>' +
-        receiptHtml(receipts[b.id] || (b.receipt === "ejemplo" ? { sample: true } : b.receipt ? { name: b.receipt } : null), b.id) +
-        '<ul class="checks"><li class="ok">Comprobante recibido</li><li class="' + (c === "found" ? "ok" : "") + '">Monto esperado: ' + clp(cfg.abono) + '</li>' +
-        '<li class="' + (c === "found" ? "ok" : "") + '">' + (c === "searching" ? "Buscando el movimiento en Mercado Pago…" : c === "found" ? "Movimiento encontrado en Mercado Pago (simulado)" : "Movimiento en la cuenta Mercado Pago") + '</li></ul>' +
+      h += '<div class="vcard"><div><b>' + esc(b.name) + '</b> <span class="note">· ' + esc(b.code || "") + '</span><div class="note">' + esc(s.name) + ' · ' + esc(fmtLong.format(parseKey(b.date))) + ', ' + b.time + ' · ' + (b.full ? 'servicio completo' : 'abono') + '</div></div>' +
+        receiptHtml(receipts[b.id] || (b.receipt === "ejemplo" ? { sample: true } : b.receipt ? { name: b.receipt } : null), b.id, amt(b), b.code) +
+        '<ul class="checks"><li class="ok">Comprobante recibido</li><li class="' + (c === "found" ? "ok" : "") + '">Monto esperado: ' + clp(amt(b)) + '</li>' +
+        '<li class="' + (c === "found" ? "ok" : "") + '">Código ' + esc(b.code || "") + ' en el comentario</li>' +
+        '<li class="' + (c === "found" ? "ok" : "") + '">' + (c === "searching" ? "Buscando el aviso de Mercado Pago…" : c === "found" ? "Aviso de Mercado Pago encontrado (simulado)" : "Aviso de transferencia recibida en Mercado Pago") + '</li></ul>' +
         '<div class="vbtns">' + (c === "found"
-          ? '<button type="button" class="btn" style="flex:none;padding:10px 16px" data-validate="' + b.id + '">Validar abono</button>'
+          ? '<button type="button" class="btn" style="flex:none;padding:10px 16px" data-validate="' + b.id + '">Validar pago</button>'
           : '<button type="button" class="small-btn" data-search="' + b.id + '" ' + (c === "searching" ? "disabled" : "") + '>Buscar en Mercado Pago</button>') +
         '<button type="button" class="small-btn" data-reject="' + b.id + '">Rechazar: no llegó</button></div></div>';
     });
@@ -510,7 +596,8 @@ body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inse
 
   document.getElementById("view").addEventListener("click", function (e) {
     var t = e.target.closest("button"); if (!t || t.disabled) return;
-    if (t.dataset.go) { if (t.dataset.go === "reserva" && bk.done) { bk = { step: 1, service: null, date: null, time: null, name: "", phone: "", method: null, receipt: null, paying: false, done: null }; } go(t.dataset.go); return; }
+    if (t.dataset.go) { if (t.dataset.go === "reserva" && bk.done) { bk = newBk(); } go(t.dataset.go); return; }
+    if (t.dataset.full !== undefined) { bk.full = t.dataset.full === "1"; renderView(); return; }
     if (t.dataset.quick) { quick(t.dataset.quick); return; }
     if (t.dataset.svc) { bk.service = t.dataset.svc; renderView(); return; }
     if (t.dataset.day) { bk.date = t.dataset.day; bk.time = null; renderView(); return; }
@@ -524,16 +611,16 @@ body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inse
       setTimeout(function () { checking[sid] = "found"; if (view === "validacion") renderView(); }, 900);
       return;
     }
-    if (t.dataset.validate) { confirmed[t.dataset.validate] = true; outcomes[t.dataset.validate] = "Digital Arrow validó la transferencia: recibiste " + clp(cfg.abono) + " completos, sin comisión."; save(); renderView(); return; }
+    if (t.dataset.validate) { var vb = allBookings().filter(function (x) { return x.id === t.dataset.validate; })[0]; confirmed[t.dataset.validate] = true; outcomes[t.dataset.validate] = "Digital Arrow validó la transferencia: recibiste " + clp(vb ? amt(vb) : cfg.abono) + " completos, sin comisión."; save(); renderView(); return; }
     if (t.dataset.reject) { status[t.dataset.reject] = "rechazada"; outcomes[t.dataset.reject] = "La transferencia no llegó a tu cuenta. Digital Arrow rechazó el comprobante y la hora quedó libre."; save(); renderView(); return; }
     if (t.id === "bk-next") { bk.step = Math.min(4, bk.step + 1); renderView(); return; }
     if (t.id === "bk-back") { bk.step = Math.max(1, bk.step - 1); renderView(); return; }
-    if (t.id === "bk-new") { bk = { step: 1, service: null, date: null, time: null, name: "", phone: "", method: null, receipt: null, paying: false, done: null }; renderView(); return; }
+    if (t.id === "bk-new") { bk = newBk(); renderView(); return; }
     if (t.id === "bk-pay") {
       bk.paying = true; renderView();
       setTimeout(function () {
         if (isTaken(bk.date, bk.time)) { bk.paying = false; bk.step = 2; bk.time = null; renderView(); return; }
-        var b = { id: "c-" + Date.now(), date: bk.date, time: bk.time, name: bk.name.trim(), service: bk.service, pay: bk.method, receipt: bk.receipt ? (bk.receipt.sample ? "ejemplo" : bk.receipt.name) : null };
+        var b = { id: "c-" + Date.now(), date: bk.date, time: bk.time, name: bk.name.trim(), service: bk.service, pay: bk.method, full: !!bk.full, code: bk.code, phone: bk.phone.trim(), receipt: bk.receipt ? (bk.receipt.sample ? "ejemplo" : bk.receipt.name) : null };
         if (bk.receipt) receipts[b.id] = bk.receipt;
         custom.push(b); save();
         bk.paying = false; bk.done = b; renderView();
@@ -549,6 +636,13 @@ body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inse
       r.onerror = function () { bk.receipt = { name: f.name }; renderView(); };
       r.readAsDataURL(f);
     } else { bk.receipt = { name: f.name }; renderView(); }
+  });
+  document.getElementById("view").addEventListener("submit", function (e) {
+    if (e.target.id !== "composer") return;
+    e.preventDefault();
+    var i = document.getElementById("chat-input"), text = i ? i.value.trim() : "";
+    if (!text) return;
+    reply(text, function () { return matchText(text); }, true);
   });
   document.getElementById("view").addEventListener("input", function (e) {
     if (e.target.id === "bk-name") { bk.name = e.target.value; var n = document.getElementById("bk-next"); if (n) n.disabled = bk.name.trim().length < 2; }
